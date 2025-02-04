@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tema X - Trabajo con Servidores remotos</title>
+
+
+    <link rel="stylesheet" href="../revealjs/manu.css">
+
+    <link rel="stylesheet" href="../manu/css/traspas.css" />
+
+</head>
+
+<body>
+    <svg width="0" height="0" style="float:left">
+        <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" markerUnits="strokeWidth" style="display:float">
+                <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+            </marker>
+        </defs>
+    </svg>
+    <div class="reveal">
+        <div class="slides">
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade">
+                <div class="headerlesson">Tema X</div>
+                <h1 style="height:4em;position:relative;top:0.3em">Trabajo con servidores remotos</h1>
+                <div class="headerlesson">
+                    Sistemas Web / Aplicaciones Web
+                </div>
+                <div class="author">
+                    <a href="mailto:imartinez@fdi.ucm.es" style="color:white"><span class="myname">Iván Martínez</span></a>
+                    <br/> DSIA
+                    <br/> Facultad de Informática
+                    <br/> Universidad Complutense de Madrid
+                </div>
+                <div class="cc">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
+                    <br/> Esta obra está bajo una
+                    <br/><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="color:white">Licencia CC BY-NC-SA 4.0 Internacional</a>.
+                </div>
+                <div style="clear:left;font-size:15px"></div>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p1">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline fragment highlight-orange">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Trabajo con un servidor remoto</a></li>
+                    <li><a href="#/p3" class="outline">Definiendo un workflow</a></li>
+                    <li><a href="#/p4" class="outline">Solicitud del Servidor</a></li>
+                    <li><a href="#/p5" class="outline">Anexo: Jump Server / Bastion Host</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>¿Donde publicamos nuestra aplicación?</h2>
+                <p>Aunque NodeJS en local está my bien para practicar, no es apto para publicar nuestra aplicación.</p>
+                <ul>
+                    <li>Nuestro ordenador no suele ser &quot;visible&quot; desde internet.</li>
+                    <li>Tiene limitaciones de seguridad</li>
+                    <li>No siempre tendremos el ordenador encendido</li>
+                </ul>
+                <p>Es preferible publicar las aplicaciones en servidores dedicados</p>
+                <ul>
+                    <li>Alta disponibilidad y siempre conectado</li>
+                    <li>Habitualmente Linux (y sólo consola)</li>
+                    <li>IP fija y visible en internet</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>¿Donde publicamos nuestra aplicación?</h2>
+                <p>Trabajar en remoto es más complicado</p>
+                <ul>
+                    <li>¿Cómo accedemos al servidor?</li>
+                    <li>¿Cómo configuramos el servidor?</li>
+                    <li>¿Cómo publicamos la aplicación?</li>
+                    <li>¿Cómo creamos la base de datos?</li>
+                    <li>¿Cómo podemos consultar los logs?</li>
+                </ul>
+            </section>
+
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p2">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline fragment highlight-orange">Trabajo con un servidor remoto</a></li>
+                    <li><a href="#/p3" class="outline">Definiendo un workflow</a></li>
+                    <li><a href="#/p4" class="outline">Solicitud del Servidor</a></li>
+                    <li><a href="#/p5" class="outline">Anexo: Jump Server / Bastion Host</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>¿Cómo accedemos al servidor?</h2>
+                <ul>
+                    <li>Paneles de control con interfaz gráfica (App Web)</li>
+                    <ul><li>
+                        Opción habitual para la infraestructura de laboratorios
+                    </li></ul>
+                    <li>Acceso directo a la consola (vía SSH)</li>
+                </ul>
+                <p>Acceso vía SSH:</p>
+                <pre><code data-trim class="bash">
+                    ssh [-p PUERTO] usuario@servidor
+                </code></pre>
+                <ul>
+                    <li>Por defecto, el puerto es el 22</li>
+                    <li>Una vez conectados, tenemos todos los comandos de consola Linux a nuestra disposición</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>¿Cómo subimos archivos al servidor?</h2>
+                <p>Lo habitual es subir los archivos mediante algún protocolo usando herramientas</p>
+                <ul>
+                    <li>FTP (poco seguro)</li>
+                    <li>SFTP (FTP sobre SSH, muy seguro)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>¿Cómo configuramos la aplicación?</h2>
+                <ol>
+                    <li>Utilizando variables de entorno</li>
+                    <li>Utilizando uno o varios ficheros de configuración</li>
+                    <li>Mezclando 1 y 2 de modo que las variables de entorno se leen de un fichero.</li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>¿Cómo creamos la base de datos?</h2>
+                <p>El formato <code>sqlite</code> es compatible entre diferentes plataformas y / o SO.</p>
+                <p>Podemos subir el fichero desde nuestro equipo al servidor</p>
+            </section>
+
+            <section>
+                <h2>¿Dónde publicamos nuestra aplicación?</h2>
+                <p>En aplicaciones NodeJS no existe un directorio estándar.</p>
+                <p>Utilizaremos <code>/home/node</code> que es el directorio del usuario <code>node</code> que utilizaremos para desplegar la aplicación</p>
+                <p>El entorno de laboratorios soporta un entorno de <strong>producción</strong> y un entorno <strong>beta</strong> (para pruebas)</p>
+                <p>Cada versión de la aplicación será un directorio diferente en <code>/home/node</code> y tendremos que asignarle un puerto diferente</p>
+                <ul>
+                    <li><strong>Producción</strong>: 3000</li>
+                    <li><strong>Beta</strong>: 3001</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Debugging y búsqueda de errores</h2>
+                <p>La mayoría de errores deberíais de poder encontrando y depurarlo en vuestros equipos.</p>
+                <p>Un servidor de <strong>producción</strong> nunca debe &quot;mostrar&quot; sus errores</p>
+                <ul>
+                    <li>Puede dar pistas sobre problemas de seguridad</li>
+                    <li>Queda muy mal :)</li>
+                </ul>
+                <p>Nuestra aplicación debe tener integrada un <strong>logger</strong> como <code>pino</code>.</p>
+                <p>Normalmente tendremos un directorio <code>/home/node/&lt;entorno&gt;/logs</entorno></code></p>
+                <p>Podremos seguir las actualizaciones del fichero de log con: </p>
+                <p><code>tail -f /home/node/&lt;entorno&gt;/logs/XXXX.log</code></p>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p3">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Trabajo con un servidor remoto</a></li>
+                    <li><a href="#/p3" class="outline fragment highlight-orange">Definiendo un workflow</a></li>
+                    <li><a href="#/p4" class="outline">Solicitud del Servidor</a></li>
+                    <li><a href="#/p5" class="outline">Anexo: Jump Server / Bastion Host</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Herramientas recomendadas</h2>
+                <p>Consola Web &rarr; Opción recomendada</p>
+                <p>Conexión SSH</p>
+                <ul>
+                    <li>Windows - BitVise SSH Client</li>
+                    <li>MacOS / Linux - Soporte nativo en la consola</li>
+                </ul>
+                <p>Cliente SFTP</p>
+                <ul>
+                    <li>Windows - BitVise SSH Client</li>
+                    <li>MacOS - Cyberduck</li>
+                    <li>Linux - Soporte nativo del explorador de archivos <code>sftp://XXXXX</code></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Despliegue con el usuario <code>node</code></h2>
+                <p>Por defecto tendrás acceso como <code>root</code></p>
+                <p>Es una mala práctica desplegar aplicaciones como root</p>
+                <p>Cambia al usuario <code>node</code> ejecutando en el terminal <code>su node</code></p>
+                <p>Cambia al directorio de trabajo habitual <code>/home/node</code> ejecutando en el terminal <code>cd /home/node</code></p>
+            </section>
+
+            <section>
+                <h2>Despliegue con el usuario <code>node</code></h2>
+                <p>Tienes disponible el comando <code>git</code></p>
+                <ul>
+                    <li>Puedes desplegar tu aplicación haciendo un <code>git clone</code></code></li>
+                    <li>En posteriores ocasiones, puedes actualizarla con <code>git pull</code></li>
+                </ul>
+                <p>La política habitual es que la rama <code>main</code> contiene la versión de la aplicación que puede ponerse en producción.</p>
+                <p>Arranca la aplicación con <code>npm start</code></p>
+            </section>
+    
+            <section>
+                <h2>Claves SSH para GitHub</h2>
+                <p>Para simplificar el desarrollo y despliegue en un servidor remoto es conveniente configurar <a href="https://github.com/settings/keys">una clave SSH para autenticarte en GitHub</a></p>
+                <p>Es recomendable generar una clave nueva: </p>
+                <pre><code data-trim class="bash">
+                    node@vm031$ ssh-keygen
+                    node@vm031$ cat .ssh/id_rsa.pub
+                </code></pre>
+                <p>Con la clave generada podrás hacer el clone del repositorio sin tener que introducir tu contraseña</p>
+                <p>Puedes consultar la <a href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh">documentación de GitHub</a> para este tema</p>
+            </section>
+
+            <section>
+                <h2>¿Cómo dejo la aplicación lanzada aunque cierre la sesión?</h2>
+                <p>Podemos utilizar: <code>tmux</code>, <code>screen</code>. Nosotros usaremos <code>tmux</code></p>
+                <ol>
+                    <li>Para crear una nueva sesión: <code>tmux</code></li>
+                    <li>Lanzamos la aplicación: <code>npm start</code></li>
+                    <li>Para salir de la sesión: pulsamos <kbd>Ctrl+B + "</kbd> </li>
+                    <li>Para reconectarnos a una sesión previamente creada: <code>tmux attach</code></li>
+                </ol>
+
+                <p>Consulta esta <a href="https://medium.com/@Sle3pyHead/tmux-cheat-sheet-and-quick-guide-44038cbe2870">guía de primeros pasos</a> para ver otras posibilidades que ofrece.</p>
+            </section>
+        
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p4">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Trabajo con un servidor remoto</a></li>
+                    <li><a href="#/p3" class="outline">Definiendo un workflow</a></li>
+                    <li><a href="#/p4" class="outline fragment highlight-orange">Solicitud del Servidor</a></li>
+                    <li><a href="#/p5" class="outline">Anexo: Jump Server / Bastion Host</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Servidores de laboratorio</h2>
+                <p>En el laboratorio podéis solicitar un servidor dedicado</p>
+                <ul>
+                    <li>Viene con <code>NodeJS</code> preinstalado</li>
+                    <li>Accesible desde Internet</li>
+                    <li>Uno por grupo</li>
+                </ul> 
+                <p>Web Facultad >>> Laboratorios FDI >>> 
+                    Préstamo de material</p>
+            </section>
+    
+            <section>
+                <h2>Procedimiento</h2>
+                <p>Solicitud online</p>
+                <ul>
+                    <li>Un integrante del grupo hace la solicitud</li>
+                    <li>Debe aportar el correo electrónico del resto de los integrantes</li>
+                    <li>Los integrantes deben confirmar por correo</li>
+                </ul>
+                <p>Declaración de uso responsable</p>
+                <ul>
+                    <li>Un servidor dedicado y público es una cosa delicada</li>
+                    <ul>
+                        <li>El servidor sólo es accesible desde red UCM: cable, wifi y VPN</li>
+                    </ul>
+                    <li>Uso exclusivo para el proyecto</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>¡Muy importante!</h2>
+                <p>Servicio no garantizado (<strong>as is</strong>)</p>
+                <ul>
+                    <li>Borrado en caso de amenaz ade seguridad o uso indebido</li>
+                    <li>El servidor no está pensado para desarrollar</li>
+                    <ul>
+                        <li>Tenéis que tener copias de seguridad del contenido del mismo</li>
+                        <li>Si usas git, esto es gratis :D (salvo el fichero de configuración)</li>
+                    </ul>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Servidores virtuales</h2>
+                <div style="font-size: 0.9em; float:left; width: 50%">
+                    <p>Lo que recibís</p>
+                    <ul>
+                        <li>URL del panel de acceso (Guacamole)<br/>
+                            <span style="font-size: 0.7em;">https://guacamole.containers.fdi.ucm.es</span></li>
+                        <li>Usuario de guacamole: <code>vmXXX</code></li>
+                        <li>URL de acceso web a vuestro servicio<br/>
+                            <span style="font-size: 0.7em;">https://vmXXX.containers.fdi.ucm.es</span><br/>
+                            <span style="font-size: 0.7em;">https://vmXXX-beta.containers.fdi.ucm.es</span></li>
+                        <li>Password de guacamole <strong>¡Cuidadlo bien!</strong></li>
+                        </ul>
+                    <p>Si te conectas desde casa debes utilizar la <a href="https://ssii.ucm.es/vpn">VPN de la UCM</a></p>
+                </div>
+                <p style="float:right; width: 50%">
+                    <img src="../images/prestamo.png" />
+                </p>
+            </section>
+
+                    
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p5">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Trabajo con un servidor remoto</a></li>
+                    <li><a href="#/p3" class="outline">Definiendo un workflow</a></li>
+                    <li><a href="#/p4" class="outline">Solicitud del Servidor</a></li>
+                    <li><a href="#/p5" class="outline fragment highlight-orange">Anexo: Jump Server / Bastion Host</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Jump-sever / bastion host</h2>
+                <p>En un entorno más realista no tendríamos Guacamole sino que utilizaríamos un jump-server o bastion-host server para conectarnos a la máquina de producción por SSH / SFTP</p>
+                <ul>
+                    <li><a href="https://en.wikipedia.org/wiki/Bastion_host">https://en.wikipedia.org/wiki/Bastion_host</a></li>
+                    <li><a href="https://en.wikipedia.org/wiki/Jump_server">https://en.wikipedia.org/wiki/Jump_server</a></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Jump-sever / bastion host</h2>
+                <p>En este caso tenemos que conectarnos a una máquina intermedia antes de llegar a nuestro destino</p>
+                <p><img src="../images/bastionHost.svg" /></p>
+            </section>
+
+            <section>
+                <h2>Conexión al VPS a través del jump-server</h2>
+                <p>Opción1: Usando el terminal + Filezilla / sftp / putty</p>
+                <ol>
+                    <li>Crear el túnel entre el tu equipo de desarrollo y el VPS</li>
+                    <ul>
+                        <li>Línea de comandos<br>
+                            <code style="font-size: 0.7em !important">ssh -L 2222:vmxx.swarm.test:22 -N hop@containers.fdi.ucm.es</code><br>
+                            <code style="font-size: 0.7em !important">plink -L 2222:vmxx.swarm.test:22 -N hop@containers.fdi.ucm.es</code></li>
+                        <li>Password del usuario hop &rarr; hop2025</li>
+                        <li><code style="font-size: 0.5em !important">-L 2222:vmxx.swarm.test:22</code> => crea un túnel entre el puerto 2222 de la máquina donde se ejecuta el comando con el puerto 22 la máquina vmxx.swarm.test</li>
+                    </ul>
+                    <li>Establecer la conexión por SFTP a través del túnel</li>
+                    <ul>
+                        <li>Servidor: localhost, puerto: 2222</li>
+                        <li>Usuario: root, password: Aparece en el préstamo</li>
+                    </ul>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Filezilla</h2>
+                <p><img src="../images/filezilla.png"></p>
+            </section>
+
+            <section>
+                <h2>Putty</h2>
+                <p><img src="../images/putty.png"></p>
+            </section>
+        </div>
+
+    </div>
+
+
+    <script src="../js/reveal.js"></script>
+    <script src="../js/notes.js"></script>
+    <script src="../js/zoom.js"></script>
+    <script src="../js/highlight.js"></script>
+    <script src="../js/math.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/slides.js"></script>
+</body>
+
+</html>

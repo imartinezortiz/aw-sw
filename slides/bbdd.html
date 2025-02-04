@@ -1,0 +1,776 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tema 4 - Base de datos</title>
+
+
+    <link rel="stylesheet" href="../revealjs/manu.css">
+
+    <link rel="stylesheet" href="../manu/css/traspas.css" />
+
+</head>
+
+<body>
+    <svg width="0" height="0" style="float:left">
+        <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" markerUnits="strokeWidth" style="display:float">
+                <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+            </marker>
+        </defs>
+    </svg>
+    <div class="reveal">
+        <div class="slides">
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade">
+                <div class="headerlesson">Tema 4</div>
+                <h1 style="height:3em;position:relative;top:0.3em">Acceso a Base de Datos</h1>
+                <div class="headerlesson">
+                    Sistemas Web / Aplicaciones Web
+                </div>
+                <div class="author">
+                    <a href="mailto:montenegro@fdi.ucm.es" style="color:white"><span class="myname">Manuel Montenegro</span></a>
+                    <br/> DSIC
+                    <br/> Facultad de Informática
+                    <br/> Universidad Complutense de Madrid
+                </div>
+                <div class="author">
+                    <a href="mailto:imartinez@fdi.ucm.es" style="color:white"><span class="myname">Iván Martínez</span></a>
+                    <br/> DSIA
+                    <br/> Facultad de Informática
+                    <br/> Universidad Complutense de Madrid
+                </div>
+                <div class="cc">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
+                    <br/> Esta obra está bajo una
+                    <br/><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="color:white">Licencia CC BY-NC-SA 4.0 Internacional</a>.
+                </div>
+                <div style="clear:left;font-size:15px"></div>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p1">
+                <ol class="contenidos" style="width:13em">
+                    <li><a href="#/p1" class="outline fragment highlight-orange">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Acceso a BD con SQLite</a></li>
+                    <li><a href="#/p3" class="outline">Acceso a BD con MySQL</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Acceso a bases de datos</h2>
+                <p>Paquetes para conexión a un SGBD:</p>
+                <ul>
+                    <li class="fragment">Bases de datos <strong>relacionales</strong>:
+                        <ul>
+                            <li><code>better-sqlite3</code>, <code>sqlite3</code>, <code>sqlite</code>: SQLite. <span class="arrow_box_left caja_codigo fragment" style="position:relative;left:20px">Usaremos esta BD</span></li>
+                            <li><code>mysql2</code>, <code>mysql</code>: MySQL, MariaDB.</li>
+                            <li><code>node-oracledb</code>: Oracle.</li>
+                            <li><code>sequelize</code>, <code>prisma</code>: ORMs para Base de Datos.</li>
+                        </ul>
+                    </li>
+                    <li class="fragment">
+                        Bases de datos <strong>NoSQL</strong>:
+                        <ul>
+                            <li><code>mongodb</code>: MongoDB / FerretDB (JSON)</li>
+                            <li><code>mongoose</code>: ODM para MongoDB</li>
+                            <li><code>redis</code>, <code>iovalkey</code>: Redis / Valkey</li>
+                            <li><code>cassandra-driver</code>: Apache Cassandra</li>
+                            <li><code>nano</code>: Apache CouchDB</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Base de datos de ejemplo</h2>
+                <p>Agenda de contactos</p>
+                <img src="../manu/images/04/TelefonosER.png" width="80%" style="border:none;box-shadow:none">
+                <p><strong>Nota:</strong> Guardar binarios en la bbdd no es la mejor opción<span class="fragment"> &rarr; mejor guardar ruta relativa en disco</span></p>
+            </section>
+
+            <section>
+                <p>Tabla <code>Contacto</code></p>
+                <img src="../manu/images/04/TelefonosContactos.png" width="60%" style="border:none;box-shadow:none">
+
+                <div style="float:left; width:45%">
+                    <p>Tabla <code>Tiene_Telefono</code></p>
+                    <img src="../manu/images/04/TelefonosTieneTelefono.png" width="40%" style="border:none;box-shadow:none">
+                </div>
+                <div style="float:right; width:45%">
+                    <p>Tabla <code>Tiene_Correo</code></p>
+                    <img src="../manu/images/04/TelefonosTieneCorreo.png" width="60%" style="border:none;box-shadow:none">
+                </div>
+
+                <div style="clear:both"></div>
+
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p2">
+                <ol class="contenidos" style="width:13em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline fragment highlight-orange">Acceso a BD con SQLite</a></li>
+                    <li><a href="#/p3" class="outline">Acceso a BD con MySQL</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>SQLite</h2>
+                <ul>
+                    <li>Es una de las bases de datos más utilizadas<span class="fragment"> sin que lo sepas</span></li>
+                    <li class="fragment">Se utiliza en aplicaciones nativas (Android OS), Chrome, etc.</li>
+                    <li class="fragment">Se utiliza en aplicaciones webs<span class="fragment"> <a href="https://github.com/bluesky-social/atproto/pull/1705">Bluesky</a></span>
+                        <ul>
+                            <li class="fragment">usa una BD por usuario 🤯</li>
+                        </ul>
+                    </li>
+                    <li class="fragment">Soporte bastante completo de SQL</li>
+                    <li class="fragment">También tiene limitaciones
+                        <ul>
+                            <li class="fragment">Escalado</li>
+                            <li class="fragment">Replicado / Gestión desastres</li>
+                            <li class="fragment">Se están creado complementos para paliar estos problemas: <code>LiteStream</code>, <code>LiteFS</code></li>
+                            <li class="fragment">NodeJS &gt;= 23 incluye un driver nativo para sqlite</li>
+                        </ul>
+                    </li>
+                    <li class="fragment">Seguramente no te encuentres estos problemas incluso en proyectos profesionales.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Paquete <code>better-sqlite3</code></h2>
+                <p>Instalación mediante <code>npm</code></p>
+                    <pre><code data-trim class="no-highlight">
+npm install better-sqlite3                
+                </code></pre>
+                <p>Editores / Visualizadores de bases de datos sqlite</p>
+                <ul>
+                    <li><a href="https://github.com/outerbase/studio">Outerbase Studio (app web)</a></li>
+                    <li><a href="https://sqlitebrowser.org/">DB Browser for SQLite (DB4S) (nativa)</a></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Pasos para trabajar con la BD</h2>
+                <div>
+                    <p>Pasos para trabajar con la BD:</p>
+                    <ol>
+                        <li>Crear e inicializar un objeto <code>Database</code> al inicializar la aplicación.</li>
+                        <li>Realizar consulta o modificación.<span class="fragment"> Si tenemos más de una operación usar <strong>transacciones</strong></span></li>
+                        <li>Cerrar la conexión antes de cerrar la aplicación.</li>
+                    </ol>
+                </div>
+                <p class="fragment">Con <code>better-sqlite3</code> todas las operaciones son síncronas. Y tiene <a href="https://github.com/WiseLibs/better-sqlite3?tab=readme-ov-file#how-other-libraries-compare">buen rendimiento</a></p>
+                <p><a href="https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md#class-statement">[+]</a></p>
+            </section>
+
+            <section>
+                <h2>Inicializar la BD</h2>
+                <pre><code data-trim class="javascript">
+// Fichero db.js
+import { join, dirname } from "node:path";
+import Database from 'better-sqlite3';
+
+function createConnection() {
+    const options = {
+        verbose: console.log // Opcional y sólo recomendable durante desarrollo.
+    };
+    const db = new Database(join(dirname(import.meta.dirname), 'data', 'aw_sw.db'), options);
+    db.pragma('journal_mode = WAL');
+    return db;
+}
+                </code></pre>
+                <p>Activar el <code>journal_mode=WAL</code> es <a href="https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md">importante para mejorar la durabilidad y el rendimiento</a></p>
+            </section>
+
+            <section>
+                <h2>Inicializar la BD</h2>
+                <pre><code data-trim class="javascript">
+// Fichero db.js
+let db = null;
+// [...]
+export function getConnection() {
+    if (db !== null) return db;
+    db = createConnection();
+    return db;
+}
+
+export function checkConnection(db = getConnection()) {
+    const checkStmt = db.prepare('SELECT 1+1 as suma');
+    const suma = checkStmt.get().suma;
+    if (suma == null || suma !== 2) throw Error(`La bbdd no funciona correctamente`);
+}
+
+                </code></pre>
+                <p>Mientras inicializamos la aplicación es recomendable verificar que podemos operar con la bbdd.</p>
+                <p>En el caso de una aplicación web seguramente no vamos a poder gestionar las peticiones de los usuarios.</p>
+            </section>
+
+            <section>
+                <h2>Consultas SQL paramétricas</h2>
+                <p>Supongamos que queremos realizar un programa que solicite un identificador al usuario y muestre la entrada de la tabla <code>Contactos</code> con ese identificador.</p>
+                <p><img src="../manu/images/04/InyeccionSQL1.png" width="80%" class="noborder"></p>
+            </section>
+
+            <section>
+                <pre><code data-trim data-noescape class="javascript">
+// Suponemos que la variable `id` contiene el identificador
+// introducido por el usuario
+connection.runQuery(
+    `SELECT Nombre, Apellidos FROM contactos WHERE Id = ${id}`,
+    (err, rows) => {
+        console.log(rows);
+        /* ... */
+    }
+);
+</code></pre>
+                <p>La variable <code>id</code> proviene de la entrada introducida por el usuario. Esta variable pasa directamente a la consulta SQL.</p>
+                <p class="fragment">¿Qué pasa si el usuario hubiese introducido <code>4 OR TRUE</code>?</p>
+            </section>
+
+            <section>
+                <img src="../manu/images/04/InyeccionSQL2.png" style="width: 90%" class="noborder">
+                <div class="fragment">
+                    <p>Sentencia SQL ejecutada:</p>
+                    <pre><code data-trim data-noescape class="sql">
+SELECT Nombre, Apellidos FROM contactos WHERE Id = <span class="hl">4 OR TRUE</span>
+</code></pre>
+                </div>
+            </section>
+
+            <section>
+                <h2>Inyección SQL</h2>
+                <img src="https://i.kinja-img.com/gawker-media/image/upload/18mpenleoksq8jpg.jpg" width="60%">
+                <p>Fuente: <a href="http://gizmodo.com/5498412/sql-injection-license-plate-hopes-to-foil-euro-traffic-cameras">http://gizmodo.com/5498412/sql-injection-license-plate-hopes-to-foil-euro-traffic-cameras</a></p>
+            </section>
+
+            <section>
+                <h2>Inyección SQL</h2>
+                <img src="https://imgs.xkcd.com/comics/exploits_of_a_mom.png" width="100%">
+                <p>Fuente: <a href="https://xkcd.com/327/">https://xkcd.com/327/</a></p>
+            </section>
+
+            <section>
+                <h2>Consultas paramétricas en SQLite</h2>
+                <p>Es una consulta SQL con &laquo;huecos&raquo; (denominados marcadores), representados mediante el símbolo <code>?</code>, <code>@nombreParametro</code> o <code>:nombreParametro</code>.</p>
+                <p>Al rellenar los marcadores con valores concretos, estos se &laquo;escapean&raquo; de manera que se previenen los ataques de inyección SQL.</p>
+                <p>Ejemplo de consulta paramétrica:</p>
+                <pre><code data-trim data-noescape class="sql">
+INSERT INTO contactos(Nombre, Apellidos) VALUES (<span class="hl">?</span>, <span class="hl">?</span>);
+            </code></pre>
+            </section>
+
+            <section>
+                <p>El método <code>prepare()</code> recibe una consulta paramétrica. En este caso, el segundo parámetro de este método recibe un array con los valores asignados a los marcadores.</p>
+                <p>Por ejemplo, si se ejecuta la consulta paramétrica,</p>
+                <pre><code data-trim data-noescape class="sql">
+SELECT Nombre, Apellidos FROM contactos
+WHERE Id = <span class="hl">?</span>
+            </code></pre>
+                <p>y asignamos la cadena <code>"1 OR TRUE"</code> al marcador, en realidad se ejecutará la siguiente consulta:</p>
+                <pre><code data-trim data-noescape class="sql">
+SELECT Nombre, Apellidos FROM contactos
+WHERE Id = <span class="hl">'1 OR TRUE'</span>
+            </code></pre>
+            </section>
+
+            <section>
+                <p>Método <code>prepare</code> con consultas paramétricas:</p>
+                <p><code>prepare(<em>consulta con marcadores</em>)</code></p>
+                <pre><code data-trim data-noescape class="javascript">
+// Suponemos que la variable `id` contiene el identificador
+// introducido por el usuario
+const stmt = db.prepare('SELECT nombre, apellidos FROM Contactos WHERE id = <span class="hl">?</span>');
+const resultado = stmt.get(id);
+console.log(resultado);
+                </code></pre>
+
+                <pre><code data-trim data-noescape class="javascript">
+// Suponemos que la variable `id` contiene el identificador
+// introducido por el usuario
+const stmt = db.prepare('SELECT nombre, apellidos FROM Contactos WHERE id = <span class="hl">@idUsuario</span>');
+const resultado = stmt.get({ idUsuario: id});
+console.log(resultado);
+                </code></pre>
+            </section>
+
+            <section>
+                <h2><code>prepare</code> y objetos <code>Statement</code></h2>
+                <p><code>prepare</code> devuelve instancias de la clase <code>Statement</code></p>
+                <p>Métodos más relevantes</p>
+                <ul>
+                    <li><code>get</code>: Devuelve el primer resultado de <code>SELECT</code>.</li>
+                    <li><code>all / iterate</code>: Devuelven todos los resultados de <code>SELECT</code>.</li>
+                    <li><code>run</code>: Ejecuta la consulta y devuelve información sobre filas afectadas.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Consultas SELECT</h2>
+                <p>Devuelve el primer resultado (si lo hay) resultado de una consulta (e.g. <code>SELECT</code>).<span class="fragment"> Si no hay resultado devuelve <code>undefined</code></span></p>
+                <p><code>get</code> recibe los parámetros los parámetros de la consulta</p>
+                <pre><code data-trim data-noescape class="javascript">
+const stmt = db.prepare('SELECT nombre, apellidos FROM Contactos');
+const primerResultado = stmt.get();
+console.log(primerResultado); // { nombre: 'Joey', apellidos: 'Salnieri', ...}
+
+const buscaPorApellidos = db.prepare('SELECT nombre FROM Contactos WHERE apellido LIKE ?');
+const resultado = buscaPorApellidos.get('Kennedy');
+console.log(resultado); // undefined
+
+    </code></pre>
+            </section>
+
+            <section>
+                <p><code>all</code> / <code>iterate</code> es como <code>all</code> pero devuelve iterador en vez de un array con todos los resultados</p>
+                <pre><code data-trim data-noescape class="javascript">
+const buscaPorApellidos = db.prepare('SELECT nombre FROM Contactos WHERE apellido LIKE ?');
+
+const todos = buscaPorApellidos.all('Salinieri');
+console.log(todos);
+// [{ nombre: 'Joey', apellidos: 'Salnieri', ...}]
+
+const it = buscaPorApellidos.iterate('Salnieri');
+for(const mafioso of it) {
+    console.log(mafioso);
+}
+// { nombre: 'Joey', apellidos: 'Salnieri', ...}
+    </code></pre>
+            </section>
+
+            <section>
+                <p>El resultado de una consulta es un array de objetos.</p>
+                <p>Cada objeto representa una fila. Los atributos de cada objeto son los nombres de las columnas devueltos por <code>SELECT</code>. Los valores asociados a cada atributo dependen del tipo de la columna correspondiente:</p>
+                <p>Ten en cuenta que SQLite tiene un sistema de <a href="https://www.sqlite.org/datatype3.html">tipos flexible</a>.</p>
+                <table>
+                    <tr>
+                        <th>Tipo JS</th>
+                        <th>Tipo SQL SQLite</th>
+                    </tr>
+                    <tr>
+                        <td><code>null</code></td>
+                        <td><code>NULL</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>number</code></td>
+                        <td><code>REAL</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>number o <a href="https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/integer.md#the-bigint-primitive-type">BigInt</a></code></td>
+                        <td><code>INTEGER</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>string</code></td>
+                        <td><code>TEXT</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>Blob</code></td>
+                        <td><code><a href="https://nodejs.org/api/buffer.html#buffer_class_buffer">Buffer</a></code></td>
+                    </tr>
+                </table>
+            </section>
+
+            <section>
+                <h2>Inserciones, borrados y actualizaciones</h2>
+                <p><code>run</code> recibe los parámetros de la operación SQL y devuelve un resultado con los cambios.</p>
+                <p>Atributos del objeto resultado:</p>
+                <ul>
+                    <li><code>changes</code>: número total afectadas por la operación.</li>
+                    <li><code>lastInsertRowid</code>: el <code>rowid</code> de la última fila insertada.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Transacciones</h2>
+                <p><code>transaction</code> recibe una función que se ejecutará dentro de la transacción</p>
+                <p>La función puede recibir los parámetros para realizar las operaciones.</p>
+                <p>El resultado de la función es devuelto por la transacción.</p>
+                <pre><code data-trim data-noescape class="javascript">
+const insertStmt = db.prepare('INSERT INTO Contactos (nombre, apellidos, fechaNac) '
+   +'VALUES (@nombre, @apellidos, @fechaNac)');
+
+const insertMany = db.transaction((mafiosos) => {
+    const ids = [];
+    for (const mafioso of mafiosos) {
+        ids.push(insertStmt.run(mafioso).lastInsertRowid);
+    }
+    return ids;
+});
+
+const ids = insertMany([
+  { nombre: 'Joey', apellidos: 'Salnieri', fechaNac: DateTime.fromISO("1954-05-15").toISODate() },
+  { nombre: 'Sally', apellidos: 'Luciano', fechaNac: DateTime.fromISO("1961-06-29").toISODate() },
+  { nombre: 'Junior', apellidos: 'Soprano', fechaNac: DateTime.fromISO("1937-02-01").toISODate() },
+]);
+                    </code></pre>
+            </section>
+
+            <section>
+                <p>Es posible utilizar alguno de los <a href="https://www.sqlite.org/lang_transaction.html">subtipos de transacciones</a> de SQLite: <code>DEFERRED</code>, <code>IMMEDIATE</code></p>
+                <pre><code data-trim class="javascript">
+insertMany(mafiosos); // uses "BEGIN"
+insertMany.deferred(mafiosos); // uses "BEGIN DEFERRED"
+insertMany.immediate(mafiosos); // uses "BEGIN IMMEDIATE"
+                </code></pre>
+            </section>
+
+            <section>
+                <p>Se pueden mezclar operaciones</p>
+                <pre><code data-trim class="javascript">
+const decrementaSaldoStmt = db.prepare('UPDATE Cuenta SET saldo -= ? WHERE cuenta = ? AND saldo >= ?');
+const incrementaSaldoStmt = db.prepare('UPDATE Cuenta SET saldo += ? WHERE cuenta = ?');
+
+const transferencia = db.transaction((origen, destino, cantidad) => {
+    const decrementaResult = decrementaSaldoStmt.run(cantidad, origen, cantidad);
+    if (decrementaResult.changes !== 1) return false;
+
+    const incrementaResult = incrementaSaldoStmt.run(cantidad, destino);
+    return incrementaResult.changes === 1;
+});
+                </code></pre>
+                <p><strong>Nota:</strong> es recomendable minimizar la lógica que se ejecuta dentro de la función de la transacción.</p>
+            </section>
+
+            <section>
+                <h2>Cerrando la conexión al salir</h2>
+                <p>Para cerrar de manera controlada una bbdd <code>SQLite</code> es necesario cerrarla con <code>close</code> antes de terminar
+                la aplicación.</p>
+                <pre><code data-trim class="javascript">
+// db.js
+export function closeConnection(db = getConnection()) {
+    if (db === null) return;
+    db.close();
+}
+
+// server.js
+process.on('exit', (code) => {
+    closeConnection();
+    // ...
+});
+                </code></pre>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p3">
+                <ol class="contenidos" style="width:13em">
+                    <li><a href="#/p1" class="outline">Introducción</a></li>
+                    <li><a href="#/p2" class="outline">Acceso a BD con SQLite</a></li>
+                    <li><a href="#/p3" class="outline fragment highlight-orange">Acceso a BD con MySQL</a></li>
+                </ol>
+            </section>
+
+            <section>
+
+                <section>
+                    <h3>Paquete <code>mysql</code></h3>
+                    <p>Instalación mediante <code>npm</code></p>
+                    <pre><code data-trim class="no-highlight">
+npm install mysql                
+                </code></pre>
+                    <div class="fragment">
+                        <p>Pasos para trabajar con la BD:</p>
+                        <ol>
+                            <li>Crear e inicializar un objeto <code>Connection</code>.</li>
+                            <li>Realizar la conexión.</li>
+                            <li>Realizar consulta o modificación.</li>
+                            <li>Cerrar la conexión.</li>
+                        </ol>
+                    </div>
+                    <p class="fragment">Salvo la primera, todas las operaciones son <strong>asíncronas</strong>.</p>
+                </section>
+
+                <section>
+                    <h4>Inicializar una conexión</h4>
+                    <p>En el paquete <code>mysql</code> existe la función <code>createConnection()</code> y los métodos <code>connect()</code>, <code>query()</code> y <code>close()</code> para realizar estos pasos.</p>
+                    <p class="fragment">Pero nosotros no vamos a abrir y cerrar conexiones de manera individual.</p>
+                    <p class="fragment">En teoría, una aplicación web debería abrir y cerrar una conexión cada vez que atienda una petición que requiera acceso a la BD, pero la creación de conexiones es un proceso relativamente <strong>costoso</strong>.</p>
+                </section>
+
+                <section>
+                    <h4>Pool de conexiones</h4>
+                    <p>Un <strong>pool de conexiones</strong> es un contenedor de conexiones permanentemente abiertas a una determinada BD</p>
+                    <p>Con un pool conseguimos que las conexiones se reutilicen en sucesivas consultas a la BD, sin necesidad de crear conexiones nuevas continuamente.</p>
+                </section>
+
+                <section>
+                    <p>El paquete <code>mysql</code> permite la creación de pools:</p>
+                    <pre><code data-trim class="javascript">
+import mysql from "mysql";
+
+const pool = mysql.createPool({
+    host:  "localhost",
+    user:  "root",
+    password: "",
+    database: "miBD"
+});
+//...                
+                </code></pre>
+                    <p><code>createPool()</code> devuelve un objeto de la clase <code>Pool</code>.</p>
+                    <p>Los objetos <code>Pool</code> permiten obtener conexiones mediante el método asíncrono <code>getConnection()</code>.</p>
+                </section>
+
+
+                <section>
+                    <img src="../manu/images/04/PoolConexiones.svg" width="80%" style="border:none;box-shadow:none">
+                    <p>Cuando se quiere realizar una consulta a la BD, se adquiere una conexión libre del <em>pool</em> de conexiones.</p>
+                    <p>Cuando se ha terminado de trabajar con la conexión, se devuelve al <em>pool</em>, en lugar de cerrarla.</p>
+                </section>
+
+
+                <section>
+                    <h4>Obtener una conexión del pool</h4>
+                    <p>Método <code>getConnection(callback)</code></p>
+                    <pre><code data-trim class="javascript">
+pool.getConnection((err, connection) => {
+    if (err) {
+       console.log(`Error al obtener la conexión: ${err.message}`);
+    } else {
+        // ... realizar consulta ...
+    }
+});
+                </code></pre>
+                    <p>Con el objeto <code>Connection</code> podemos ejecutar consultas y modificaciones mediante SQL.</p>
+                </section>
+
+                <section>
+                    <h4>Ejecutar consultas</h4>
+                    <p>Método <code>query(consulta, callback)</code></p>
+                    <p>La función callback recibe, además del objeto error, el resultado de la consulta.</p>
+
+                    <pre><code data-trim class="javascript">
+connection.query(
+    "SELECT Nombre, Apellidos, FechaNac, Foto FROM Contactos",
+    (err, filas) => {
+        if (!err) {
+            // Recorrer y procesar las filas
+        }
+    }
+);                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>El resultado de una consulta es un array de objetos.</p>
+                    <p>Cada objeto representa una fila. Los atributos de cada objeto son los nombres de las columnas devueltos por <code>SELECT</code>. Los valores asociados a cada atributo dependen del tipo de la columna correspondiente:</p>
+                    <table>
+                        <tr>
+                            <th>Tipo Node</th>
+                            <th>Tipo SQL MySQL</th>
+                        </tr>
+                        <tr>
+                            <td><code>number</code></td>
+                            <td><code>INT</code>, <code>SMALLINT</code>, <code>FLOAT</code>, <code>DOUBLE</code>, ...</td>
+                        </tr>
+                        <tr>
+                            <td><code>string</code></td>
+                            <td><code>CHAR</code>, <code>VARCHAR</code>, <code>TEXT</code>, <code>ENUM</code>, ...</td>
+                        </tr>
+                        <tr>
+                            <td><code>Date</code></td>
+                            <td><code>TIMESTAMP</code>, <code>DATE</code>, <code>DATETIME</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>Buffer</code></td>
+                            <td><code>BLOB</code>, <code>BINARY</code>, <code>DATETIME</code>, ...</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section>
+                    <pre><code data-trim class="javascript">
+conexion.query(
+    "SELECT Nombre, Apellidos FROM Contactos",
+    function(err, filas) {
+        if (!err) {
+            filas.forEach(function(fila) {
+                console.log(`${fila.Nombre} ${fila.Apellidos}`);
+            });
+            // ...
+        }
+    }
+);                
+                </code></pre>
+                    <pre class="fragment"><code data-trim class="no-highlight">
+Javier Fernández Montoro
+Estela Hernández de la Fuente
+Gloria Ruiz Sánchez
+Fermín Córdoba Moreno
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>El pool contiene un número limitado de conexiones.</p>
+                    <p>Por tanto, conviene devolver la conexión al pool, mediante el método <code>release()</code>, una vez obtenidos los resultados de la consulta.</p>
+                    <pre><code data-trim data-noescape class="javascript">
+conexion.query(
+    "SELECT Nombre, Apellidos FROM Contactos",
+    (err, filas) => {
+        if (!err) {
+            filas.forEach((fila) => {
+                console.log(`${fila.Nombre} ${fila.Apellidos}`);
+            });
+            <span class="hl">conexion.release();</span>
+        }
+    }
+);                
+                </code></pre>
+                </section>
+
+                <section>
+                    <h4>Inserciones, borrados y actualizaciones</h4>
+                    <p>Al igual que en las consultas, se utiliza <code>query()</code></p>
+                    <p>En estos casos, la función callback recibe un objeto con información sobre el resultado de la operación.</p>
+                    <p>Atributos del objeto resultado:</p>
+                    <ul>
+                        <li><code>affectedRows</code>: número de filas insertadas, actualizadas o borradas.</li>
+                        <li><code>insertId</code>: identificador de la última fila insertada, en caso de ser de tipo <code>AUTO_INCREMENT</code>.</li>
+                    </ul>
+
+                </section>
+
+                <section>
+                    <h4>Ejemplo</h4>
+                    <pre><code data-trim class="javascript">
+pool.getConnection((err, conexion) => {
+    if (err) { /* ... */ }
+    const sql = "INSERT INTO Contactos(Nombre, Apellidos) "
+              + "VALUES ('Diana', 'Díaz')"
+    conexion.query(sql, function(err, resultado) {
+        if (err) {
+            console.log("Error de inserción: " + err);
+        } else {
+            // Imprime el identificador de la nueva fila
+            console.log(resultado.insertId);
+            
+            // Imprime el número de filas insertadas
+            console.log(resultado.affectedRows);
+            
+            // Devolvemos la conexión al pool
+            conexion.release();
+        }
+    });
+});                
+                </code></pre>
+                </section>
+
+            </section>
+
+            <section>
+                <h2>Consultas paramétricas en MySQL</h2>
+                <p>Es una consulta SQL con &laquo;huecos&raquo; (denominados marcadores), representados mediante el símbolo <code>?</code>.</p>
+                <p>Al rellenar los marcadores con valores concretos, estos se &laquo;escapean&raquo; de manera que se previenen los ataques de inyección SQL.</p>
+                <p>Ejemplo de consulta paramétrica:</p>
+                <pre><code data-trim data-noescape class="sql">
+INSERT INTO contactos(Nombre, Apellidos) VALUES (<span class="hl">?</span>, <span class="hl">?</span>);
+            </code></pre>
+            </section>
+
+            <section>
+                <p>El método <code>query()</code> puede recibir una consulta paramétrica. En este caso, el segundo parámetro de este método recibe un array con los valores asignados a los marcadores.</p>
+                <p>Por ejemplo, si se ejecuta la consulta paramétrica,</p>
+                <pre><code data-trim data-noescape class="sql">
+SELECT Nombre, Apellidos FROM contactos
+WHERE Id = <span class="hl">?</span>
+            </code></pre>
+                <p>y asignamos la cadena <code>"1 OR TRUE"</code> al marcador, en realidad se ejecutará la siguiente consulta:</p>
+                <pre><code data-trim data-noescape class="sql">
+SELECT Nombre, Apellidos FROM contactos
+WHERE Id = <span class="hl">'1 OR TRUE'</span>
+            </code></pre>
+            </section>
+
+            <section>
+                <p>Función <code>query</code> con consultas paramétricas:</p>
+                <p><code>query(<em>consulta</em>, <em>valores_marcadores</em>, <em>callback</em>)</code></p>
+                <pre><code data-trim data-noescape class="javascript">
+// Suponemos que la variable `id` contiene el identificador
+// introducido por el usuario
+connection.query(
+`SELECT Nombre, Apellidos FROM contactos WHERE Id = <span class="hl">?</span>`,
+[<span class="hl">id</span>], 
+(err, rows) => {
+    console.log(rows);
+    /* ... */
+}
+);
+</code></pre>
+            </section>
+            
+            <section>
+                <section>
+                    <h3>El problema de las n+1 consultas</h3>
+                    <p>
+                        <img src="../manu/images/04/TelefonosER.png" style="width:80%" class="noborder">
+                    </p>
+                    <p>Supongamos que queremos mostrar un listado de todos los contactos, cada uno de ellos con sus números de teléfono asociados.</p>
+                </section>
+                
+                <section>
+                    <p>Supongamos la siguente solución (pseudocódigo):</p>
+<pre><code data-trim data-noescape class="sql">
+listaContactos := <span class="hl">SELECT Id, Nombre FROM Contactos</span>
+for (c in listaContactos) {
+    print(c.Nombre);
+    listaTelefonos := <span class="hl">SELECT Numero, Tipo FROM Tiene_Telefono</span>
+                      <span class="hl">WHERE Id = c.Id</span>
+    for (t in listaTelefonos) {
+        print(c.Numero, c.Tipo)
+    }
+}
+</code></pre>                    
+                    <p class="fragment">Si existen <code>n</code> contactos, ¿cuántas consultas se realizan?</p>
+                    <ul class="fragment">
+                        <li>Una para obtener todos los contactos.</li>
+                        <li>Para cada uno de los <code>n</code> contactos, una consulta para obtener sus teléfonos.</li>
+                    </ul>
+                    <p class="fragment">Total: <code>n+1</code> consultas.</p>
+                </section>
+                
+                <section>
+                    <p>El problema de las <strong>n+1 consultas</strong> se produce cuando se realiza un número de consultas proporcional al número de resultados recuperados de la BD.</p>
+                    <p>Cada consulta conlleva un coste en tiempo.</p>
+                    <p>Podemos obtener el mismo resultado mediante una única consulta, aunque sea más compleja.</p>
+                </section>
+                
+                <section>
+<pre><code data-trim data-noescape class="sql">
+filasConsulta := <span class="hl">SELECT c.Id, c.Nombre, t.Numero, t.Tipo </span>
+                 <span class="hl">FROM Contactos AS c</span>
+                 <span class="hl">LEFT JOIN Tiene_Telefono AS t ON c.Id = t.Id</span>
+                 <span class="hl">ORDER BY c.Id</span>
+</code></pre>                    
+                    <p><img src="../manu/images/04/JoinContactos.png" style="width:50%" class="noborder"></p>
+                </section>
+                
+                <section>
+                    <p><img src="../manu/images/04/JoinContactos.png" style="width:50%" class="noborder"></p>
+<pre><code data-trim data-noescape class="javascript">
+IdContactoActual := null;
+for (f in filasConsulta) {
+    if (f.Id &ne; IdContactoActual) {
+        print(f.Nombre)
+        IdContactoActual := f.Id;
+    }
+    if (f.Numero &ne; null) {
+        print(f.Numero)
+    }
+}
+</code></pre>                    
+                </section>
+
+            </section>
+
+        </div>
+
+    </div>
+
+
+    <script src="../js/reveal.js"></script>
+    <script src="../js/notes.js"></script>
+    <script src="../js/zoom.js"></script>
+    <script src="../js/highlight.js"></script>
+    <script src="../js/math.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/slides.js"></script>
+</body>
+
+</html>
