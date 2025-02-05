@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="author" content="Iván Martínez-Ortiz" />
+    <meta name="description" content="Some slides" />
+    <meta name="keywords" content="" />
+    <title>Title tag for the slides</title>
+    <link rel="stylesheet" href="../revealjs/slides.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section class="data-auto-animate">
+          <h2>Pretty code</h2>
+          <pre><code class="language-javascript" data-trim data-line-numbers>import React, { useState } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  return (
+    ...
+  );
+}</code></pre>
+        </section>
+        <section class="data-auto-animate">
+          <h2>Even Prettier animations</h2>
+          <pre><code class="language-javascript" data-trim data-line-numbers="|4,8-11|17|22-24">import React, { useState } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+function SecondExample() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Click me
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        </section>
+        <section>
+          <h2>Probando</h2>
+          <p>hola</p>
+          <div class="container">
+            <div class="col">
+              <pre><code class="java" data-trim data-noescape data-line-numbers="2|3|4|5|6">public static final main(String[] args) {
+  <span class="fragment">int x = 1;</span>
+  <span class="fragment">int x = 3;</span>
+  <span class="fragment">int x = 4;</span>
+  <span class="fragment">int x = 5;</span>
+  char c = 'h';
+}</code></pre>
+            </div>
+            <ul class="col">
+              <li>
+                hola dfasdf asfsfdfasdf sdfsd fasd fsf sdf asdfa sf fs fas
+                dfsdfa sdfasfsdf
+              </li>
+              <li>hola</li>
+              <li>hola</li>
+              <li>hola</li>
+            </ul>
+          </div>
+        </section>
+        <section>
+          <h1>A Cool Title dfadf</h1>
+          <p class="for-web" style="font-size: 80%">
+            (Swipe or arrow keys to move through slides; `m` for a menu to jump;
+            `?` to show more.)
+          </p>
+          <p class="for-pdf">// Point to an HTML version or something?</p>
+        </section>
+        <section>
+          <p>This is the first slide.</p>
+          <aside class="notes">Hi there!</aside>
+        </section>
+        <section>
+          <h2>Slide 2</h2>
+          <ul>
+            <li>
+              Future work:
+              <ul>
+                <li>
+                  Add speech recognition &rarr; image search &rarr; display
+                </li>
+                <ul>
+                  <li>
+                    Like Instant-Presentation
+                    <span class="cite"
+                      >[<a href="https://github.com/ixchow/Instant-Presentation"
+                        >McCann SIGBOVIK-12</a
+                      >]</span
+                    >
+                    and Last-Second-Slides
+                    <span class="cite"
+                      >[<a href="https://github.com/trishume/LastSecondSlides"
+                        >Mailhot/Hume TerribleHacks-16</a
+                      >]</span
+                    >
+                  </li>
+                </ul>
+              </ul>
+            </li>
+          </ul>
+          <span class="fragment">$$ \int \sum e_i \otimes k(x, \cdot) $$</span>
+        </section>
+        <section>
+          <h2>More Complicated</h2>
+          <div style="width: 60%; position: absolute; left: 0">
+            \begin{align} f &= \sum_{j=1}^{12} j e^{\pi \mathbb{i}} \\
+            &\fragment[3]{= -\sum_{j=1}^{12} j} \\ &\fragment[5]{= -
+            \frac{12}{2} (12 + 1)} \\ &\fragment[6]{= - 6 \cdot 13} \\
+            &\fragment[7]{= -78} \end{align}
+          </div>
+          <div style="width: 30%; position: absolute; left: 65%">
+            <p class="fragment" data-fragment-index="2">Remember:</p>
+            <p class="fragment" data-fragment-index="2">
+              $e^{\pi \mathbb{i}} = -1$
+            </p>
+            <p class="fragment" data-fragment-index="4">
+              $\sum_{j=1}^b j = \frac{b (b + 1)}{2}$
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script src="../js/reveal.js"></script>
+    <script src="../js/notes.js"></script>
+    <script src="../js/zoom.js"></script>
+    <script src="../js/highlight.js"></script>
+    <script src="../js/math.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/slides.js"></script>
+  </body>
+</html>
