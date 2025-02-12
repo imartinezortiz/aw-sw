@@ -25,7 +25,7 @@
         <div class="slides">
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade">
                 <div class="headerlesson">Tema 3</div>
-                <h1 style="height:3em;position:relative;top:0.3em">Programación en JavascriPT</h1>
+                <h1 style="height:3em;position:relative;top:0.3em">Programación en Javascript</h1>
                 <div class="headerlesson">
                     Sistemas Web / Aplicaciones Web
                 </div>
@@ -36,7 +36,7 @@
                     <br/> Universidad Complutense de Madrid
                 </div>
                 <div class="author">
-                    <a href="mailto:imartinez@fdi.ucm.es"><span class="myname">Iván Martínez</span></a>
+                    <a href="mailto:imartinez@fdi.ucm.es" style="color:white"><span class="myname">Iván Martínez</span></a>
                     <br/> DSIA
                     <br/> Facultad de Informática
                     <br/> Universidad Complutense de Madrid
@@ -565,7 +565,7 @@ m.length  // &rarr; 3
                     <li>La herencia basada en prototipos.</li>
                     <li>Los arrays son flexibles, y también son objetos.</li>
                     <li>Las funciones de orden superior sobre arrays.</li>
-                    <li>Los módulos aún están por aterrizar.</li>
+                    <li>Diferentes maneras incompatibles para los módulos</li>
                 </ol>
             </section>
 
@@ -1006,7 +1006,7 @@ isNaN(Math.log(-3)) // &rarr; true
 Math.log10("1000")  <span class="fragment">// &rarr; 3</span>
 "10" &lt; "2"          <span class="fragment">// &rarr; true</span>
 "10" &lt; 2            <span class="fragment">// &rarr; false</span>
-Array(8).join("wat" -1) + " Batmant !" <span class="fragment">// &rarr; NaNNaNNaNNaNNaNNaNNaN Batmant !'</span>
+Array(8).join("wat" - 1) + " Batmant !" <span class="fragment">// &rarr; NaNNaNNaNNaNNaNNaNNaN Batmant !'</span>
                     </code></pre>
                 </section>
 
@@ -1122,7 +1122,7 @@ false == 0      <span class="fragment">// &rarr; true</span>
                 <section>
                     <h4>Definición de una función</h4>
                     <pre><code data-trim class="javascript">
-function imprime_args(p1, p2, p3) {
+function imprimeArgs(p1, p2, p3) {
     console.log(`p1: ${p1}`);
     console.log(`p2: ${p2}`);
     console.log(`p3: ${p3}`);
@@ -1132,7 +1132,7 @@ function imprime_args(p1, p2, p3) {
                     <div class="fragment">
                         <h4>Llamada a una función</h4>
                         <pre><code data-trim class="javascript">
-imprime_args(1, "bar", true);
+imprimeArgs(1, "bar", true);
                     </code></pre>
                     </div>
                     <div class="fragment">
@@ -1151,7 +1151,7 @@ p3: true</pre>
                     <ul>
                         <li class="fragment">Si se proporcionan argumentos &laquo;de más&raquo; se ignoran los sobrantes:
                             <pre><code data-trim class="javascript">
-imprime_args("uno", "dos", "tres", "cuatro");
+imprimeArgs("uno", "dos", "tres", "cuatro");
                         </code></pre>
                             <pre>
 p1: uno
@@ -1166,7 +1166,7 @@ p3: tres</pre>
                         <li>
                             Si faltan argumentos, los parámetros correspondientes tomarán el valor <code>undefined</code>
                             <pre><code data-trim class="">
-imprime_args("uno", "dos");
+imprimeArgs("uno", "dos");
                             </code></pre>
                             <pre>
 p1: uno
@@ -1179,19 +1179,16 @@ p3: undefined</pre>
                 <section>
                     <p>Esto nos permite definir funciones con parámetros opcionales.</p>
                     <pre><code data-trim class="javascript">
-/*
-    El parámetro 'color' es opcional. Su valor por defecto
-    es 'negro'.
-
-    El parámetro 'trazo' especifica el grosor del trazo y
-    también es opcional. Su valor por defecto es 1.
-*/
-function pintar_circulo(x, y, color, trazo) {
+/**
+ * @param {string} [color="negro"] Opcional. Su valor por defecto es 'negro'.
+ *
+ * @param {number} [trazo=1] Opcional. Grosor del trazo. Su valor por defecto es 1.
+ */
+function pintarCirculo(x, y, color, trazo) {
    if (color === undefined) color = "negro";
    if (trazo === undefined) trazo = 1;
 
-   console.log(`Pintar círculo en (${x}, ${y}) de color ${color}` +
-                ` y trazo de grosor ${trazo}`;
+   console.log(`Círculo en (${x}, ${y}) de color ${color} y trazo de grosor ${trazo}`);
 }
                    </code></pre>
                 </section>
@@ -1199,16 +1196,13 @@ function pintar_circulo(x, y, color, trazo) {
                 <section>
                     <p>Aunque hay una sintaxis específica para ello:</p>
                     <pre><code data-trim data-noescape class="javascript">
-/*
-    El parámetro 'color' es opcional. Su valor por defecto
-    es 'negro'.
-
-    El parámetro 'trazo' especifica el grosor del trazo y
-    también es opcional. Su valor por defecto es 1.
-*/
-function pintar_circulo(x, y, <span class="hl">color = "negro"</span>, <span class="hl">trazo = 1</span>) {
-   console.log(`Pintar círculo en (${x}, ${y}) de color ${color}` +
-                ` y trazo de grosor ${trazo}`;
+/**
+ * @param {string} [color="negro"] Opcional. Su valor por defecto es 'negro'.
+ *
+ * @param {number} [trazo=1] Opcional. Grosor del trazo. Su valor por defecto es 1.
+ */
+function pintaCirculo(x, y, <span class="hl">color = "negro"</span>, <span class="hl">trazo = 1</span>) {
+   console.log(`Círculo en (${x}, ${y}) de color ${color} y trazo de grosor ${trazo}`);
 }
                    </code></pre>
                 </section>
@@ -1216,10 +1210,10 @@ function pintar_circulo(x, y, <span class="hl">color = "negro"</span>, <span cla
                 <section>
                     <h4>Parámetros nominales</h4>
                     <p>Utilizando objetos podemos simular el paso de parámetros nominales.</p>
-                    <p>Por ejemplo, supongamos una función <code>abrir_fichero</code> que espera un nombre de fichero y, opcionalmente:</p>
+                    <p>Por ejemplo, supongamos una función <code>abrirFichero</code> que espera un nombre de fichero y, opcionalmente:</p>
                     <ul>
                         <li>
-                            <p>Un parámetro <code>solo_lectura</code> que indica si el fichero se abre en modo lectura o en modo lectura/escritura.</p>
+                            <p>Un parámetro <code>soloLectura</code> que indica si el fichero se abre en modo lectura o en modo lectura/escritura.</p>
                             <p>Valor por defecto: <code>true</code></p>
                         </li>
                         <li>
@@ -1232,19 +1226,19 @@ function pintar_circulo(x, y, <span class="hl">color = "negro"</span>, <span cla
                 <section>
                     <p>Ejemplos de llamadas</p>
                     <pre><code data-trim class="javascript">
-abrir_fichero("mio.txt");
+abrirFichero("mio.txt");
 // Abriendo fichero mio.txt en modo lectura
 
-abrir_fichero("mio.txt", { solo_lectura: false });
+abrirFichero("mio.txt", { soloLectura: false });
 // Abriendo fichero mio.txt en modo lectura/escritura
 
-abrir_fichero("mio.txt", { binario: true });
+abrirFichero("mio.txt", { binario: true });
 // Abriendo fichero binario mio.txt en modo lectura
 
-abrir_fichero("mio.txt", { binario: true, solo_lectura: false });
+abrirFichero("mio.txt", { binario: true, soloLectura: false });
 // Abriendo fichero binario mio.txt en modo lectura/escritura
 
-abrir_fichero("mio.txt", { solo_lectura: true, binario: false });
+abrirFichero("mio.txt", { soloLectura: true, binario: false });
 // Abriendo fichero mio.txt en modo lectura
                     </code></pre>
                 </section>
@@ -1252,19 +1246,21 @@ abrir_fichero("mio.txt", { solo_lectura: true, binario: false });
                 <section>
                     <p>Implementación:</p>
                     <pre><code data-trim class="javascript">
-/*
-    El objeto 'ops' tiene como atributos los parámetros
-    opcionales.
-*/
-function abrir_fichero(nombre, ops = {}) {
+/**
+ * @param {string} nombre Nombre del fichero a abrir.
+ * @param {object} [ops] Opcional. Opciones de apertura
+ * @param {boolean} [ops.soloLectura=true] Apertura en modo sólo lectura.
+ * @param {boolean} [ops.binario=true] Apertura en modo binario.
+ */
+function abrirFichero(nombre, ops = {}) {
    // Inicialización de los parámetros opcionales no pasados
-   if (ops.solo_lectura === undefined) ops.solo_lectura = true;
+   if (ops.soloLectura === undefined) ops.solo_lectura = true;
    if (ops.binario      === undefined) ops.binario      = false;
    
    // Cuerpo de la función
    console.log(`Abriendo fichero ${ops.binario ? "binario " : ""}` +
                `${nombre} en modo ` + 
-            (ops.solo_lectura ? "lectura" : "lectura/escritura"))`;
+            (ops.soloLectura ? "lectura" : "lectura/escritura"))`;
 
 }
                     </code></pre>
@@ -1273,16 +1269,17 @@ function abrir_fichero(nombre, ops = {}) {
                 <section>
                     <p>Sintaxis alternativa:</p>
                     <pre><code data-trim data-noescape class="javascript">
-/*
-    El objeto 'ops' tiene como atributos los parámetros
-    opcionales.
-*/
-function abrir_fichero(nombre, 
-                <span class="hl">{solo_lectura = true, binario = false}</span> = {}) {
+/**
+ * @param {string} nombre Nombre del fichero a abrir.
+ * @param {object} [ops] Opcional. Opciones de apertura
+ * @param {boolean} [ops.soloLectura=true] Apertura en modo sólo lectura.
+ * @param {boolean} [ops.binario=true] Apertura en modo binario.
+ */
+function abriFichero(nombre, <span class="hl">{soloLectura = true, binario = false}</span> = {}) {
    // Cuerpo de la función
    console.log(`Abriendo fichero ${ops.binario ? "binario " : ""}` +
                `${nombre} en modo ` + 
-            (ops.solo_lectura ? "lectura" : "lectura/escritura"))`;
+            (ops.soloLectura ? "lectura" : "lectura/escritura"))`;
 
 }
                     </code></pre>
@@ -1310,7 +1307,7 @@ function abrir_fichero(nombre,
 
                     <div class="fragment">
                         <p>Esta característica es compartida por muchos lenguajes funcionales e imperativos:</p>
-                        <p>Haskell, Scala, Erlang, C, C++, Java 8, etc.</p>
+                        <p>Haskell, Scala, Erlang, C, C++, PHP, Java 8, etc.</p>
                     </div>
                 </section>
 
@@ -1367,7 +1364,7 @@ console.log(f(5));
                 <section>
                     <p>La siguiente función recibe una lista de funciones y un valor. Aplica cada una de las funciones de la lista al valor dado y muestra los resultados por consola:</p>
                     <pre><code data-trim class="javascript">
-function aplicar_funciones(funs, z) {
+function aplicarFunciones(funs, z) {
     for (let i = 0; i &lt; funs.length; i++) {
         console.log(
             `Aplicar función ${i} pasando ${z}: ${funs[i](z)}`
@@ -1378,7 +1375,7 @@ function aplicar_funciones(funs, z) {
                     <div class="fragment">
                         <p>Ejemplo:</p>
                         <pre><code data-trim class="javascript">
-aplicar_funciones([incrementar,duplicar,cuadrado,factorial], 5);
+aplicarFunciones([incrementar,duplicar,cuadrado,factorial], 5);
                     </code></pre>
                         <pre>
 Aplicar función 0 pasando 5: 6
@@ -1391,7 +1388,7 @@ Aplicar función 3 pasando 5: 120</pre>
                 <section>
                     <p>De igual modo, se puede devolver una función como resultado:</p>
                     <pre><code data-trim data-noescape class="javascript">
-function buscar_por_nombre(nombre) {
+function buscarPorNombre(nombre) {
     switch(nombre) {
         case "INC": return incrementar;
         case "DUP": return dup;
@@ -1405,7 +1402,7 @@ function buscar_por_nombre(nombre) {
                     <div class="fragment">
                         <p>Ejemplo:</p>
                         <pre><code data-trim class="javascript">
-var g = buscar_por_nombre("INC");
+var g = buscarPorNombre("INC");
 console.log(g(10));
                     </code></pre>
                         <pre>
@@ -1429,7 +1426,7 @@ console.log(g(3, 5));
                 <section>
                     <p>En el ejemplo anterior:</p>
                     <pre><code data-trim class="javascript">
-aplicar_funciones(
+aplicarFunciones(
     [ function(x) { return x - 3; },
       function(x) { return Math.sqrt(x); },
       factorial,
@@ -1484,7 +1481,7 @@ x => x + 1
                 <section>
                     <p>En el ejemplo anterior:</p>
                     <pre><code data-trim class="javascript">
-aplicar_funciones(
+aplicarFunciones(
     [ x => x - 3,
       x => Math.sqrt(x),
       factorial,
@@ -1492,13 +1489,13 @@ aplicar_funciones(
                     </code></pre>
                     <p>o incluso:</p>
                     <pre><code data-trim class="javascript">
-aplicar_funciones([x => x - 3, Math.sqrt, factorial, Math.log ], 2);
+aplicarFunciones([x => x - 3, Math.sqrt, factorial, Math.log ], 2);
                     </code></pre>
                 </section>
 
 
                 <section>
-                    <h4>Clausuras</h4>
+                    <h4>Closures / Clausuras</h4>
                     <p>Una función puede hacer referencia a variables declaradas en un ámbito superior</p>
                     <pre><code data-trim data-noescape class="javascript">
 let y = 3;  // variable global
@@ -1522,7 +1519,7 @@ console.log(f(2));
                     <h4>Funciones dentro de objetos</h4>
                     <p>Como las funciones son ciudadanos de primera clase, pueden ser asignadas a los atributos de un objeto:</p>
                     <pre><code data-trim data-noescape class="javascript">
-var empleado = {
+let empleado = {
   nombre: "Manuel",
   saludar: function() { 
         console.log("¡Hola!"); <span class="arrow_box_left caja_codigo fragment">¡No utilizar expresiones lambda aquí!</span>
@@ -1559,12 +1556,12 @@ empleado.despedir();
                 <section>
                     Ejemplo:
                     <pre><code data-trim data-noescape class="javascript">
-var empleado = {
+let empleado = {
     nombre: "Manuel",
 
     saludar: function() {
         console.log(`¡Hola, ${<span style="background-color:#D4D430; padding:2px; border-radius: 6px">this</span>.nombre}!`);
-    }
+    },
 
     cambiarNombre: function(nuevoNombre) {
         <span style="background-color:#D4D430; padding:2px; border-radius: 6px">this</span>.nombre = nuevoNombre;
@@ -1587,20 +1584,20 @@ empleado.saludar();
                 <section>
                     <p>Pueden transferirse métodos entre distintos objetos: </p>
                     <pre><code data-trim data-noescape class="javascript">
-var otro_empleado = {
+let otroEmpleado = {
     nombre: "David",
     saludar: empleado.saludar
 };
 
-<span style="background-color:#D4D430; padding:2px; border-radius: 6px">otro_empleado</span>.saludar();
+<span style="background-color:#D4D430; padding:2px; border-radius: 6px">otroEmpleado</span>.saludar();
     // &rarr; ¡Hola, <span style="background-color:#D4D430; padding:2px; border-radius: 6px">David</span>!
                     </code></pre>
-                    <p>Se imprime el nombre de <code>otro_empleado</code>, porque es el objeto que recibe la llamada, aunque se llame a un método proveniente de otro objeto.</p>
+                    <p>Se imprime el nombre de <code>otroEmpleado</code>, porque es el objeto que recibe la llamada, aunque se llame a un método proveniente de otro objeto.</p>
                     <div class="fragment">
                         <p>¿Qué ocurre al ejecutar el siguiente código?</p>
-                        <pre><code data-trim class="javascript">
-var f = empleado.saludar;
-f();
+                        <pre><code data-trim data-noescape class="javascript">
+let f = empleado.saludar;
+f(); <span class="fragment">// &rarr; ¡Hola, undefined!</span>
                     </code></pre>
                     </div>
                 </section>
@@ -1762,19 +1759,19 @@ let circulo = {
     radio: 5
 };
 
-let circulo_verde = Object.create(circulo);
-circulo_verde.color = "verde";
+let circuloVerde = Object.create(circulo);
+circuloVerde.color = "verde";
 
 
-let circulo_rojo = Object.create(circulo);
-circulo_rojo.color = "rojo";
+let circuloRojo = Object.create(circulo);
+circuloRojo.color = "rojo";
                     </code></pre>
 
                     <pre class="fragment"><code data-trim data-noescape class="javascript">
-console.log(circulo_rojo.color);        <span class="fragment">// &rarr; "rojo"</span>
-console.log(circulo_verde.radio);       <span class="fragment">// &rarr; 5</span>
-console.log(circulo_verde.centro.x);    <span class="fragment">// &rarr; 10</span>
-console.log(circulo_rojo.centro);       <span class="fragment">// &rarr; { x: 10, y: 20 }</span>
+console.log(circuloRojo.color);        <span class="fragment">// &rarr; "rojo"</span>
+console.log(circuloVerde.radio);       <span class="fragment">// &rarr; 5</span>
+console.log(circuloVerde.centro.x);    <span class="fragment">// &rarr; 10</span>
+console.log(circuloRojo.centro);       <span class="fragment">// &rarr; { x: 10, y: 20 }</span>
                     </code></pre>
 
                 </section>
@@ -1785,10 +1782,10 @@ console.log(circulo_rojo.centro);       <span class="fragment">// &rarr; { x: 10
                     <pre><code data-trim class="javascript">
                     circulo.grosorBorde = 2;
                     </code></pre>
-                    <p>¿Qué ocurre con <code>circulo_verde</code> y <code>circulo_rojo</code>?</p>
+                    <p>¿Qué ocurre con <code>circuloVerde</code> y <code>circuloRojo</code>?</p>
                     <pre><code data-trim data-noescape class="javascript">
-console.log(circulo_rojo.grosorBorde);      <span class="fragment">// &rarr; 2</span>
-console.log(circulo_verde.grosorBorde);     <span class="fragment">// &rarr; 2</span>
+console.log(circuloRojo.grosorBorde);      <span class="fragment">// &rarr; 2</span>
+console.log(circuloVerde.grosorBorde);     <span class="fragment">// &rarr; 2</span>
                     </code></pre>
                     <p class="fragment">&laquo;Heredan&raquo; automáticamente el nuevo atributo.</p>
                     <div class="fragment">
@@ -1796,8 +1793,8 @@ console.log(circulo_verde.grosorBorde);     <span class="fragment">// &rarr; 2</
                         <pre><code data-trim class="javascript">
 circulo.radio = 6;
 
-console.log(circulo_rojo.radio);    // &rarr; 6
-console.log(circulo_verde.radio);   // &rarr; 6
+console.log(circuloRojo.radio);    // &rarr; 6
+console.log(circuloVerde.radio);   // &rarr; 6
                     </code></pre>
                     </div>
                 </section>
@@ -1806,23 +1803,23 @@ console.log(circulo_verde.radio);   // &rarr; 6
                     <h4>Sobreescritura de atributos</h4>
                     <p>Un objeto puede sobreescribir cualquier atributo heredado de su prototipo:</p>
                     <pre><code data-trim class="">
-circulo_rojo.radio = 3;
+circuloRojo.radio = 3;
                     </code></pre>
                     <pre><code data-trim data-noescape class="javascript">
-console.log(circulo_rojo.radio);    <span class="fragment">// &rarr; 3</span>
-console.log(circulo_verde.radio);   <span class="fragment">// &rarr; 6</span>
+console.log(circuloRojo.radio);    <span class="fragment">// &rarr; 3</span>
+console.log(circuloVerde.radio);   <span class="fragment">// &rarr; 6</span>
                     </code></pre>
                     <p class="fragment">El atributo sobreescrito no afecta a los demás objetos que tengan el mismo prototipo.</p>
                 </section>
 
                 <section>
-                    <p><code>circulo_rojo.radio = 3;</code></p>
+                    <p><code>circuloRojo.radio = 3;</code></p>
                     <img src="../manu/images/03/CirculosRojoyVerde.svg" style="width:60%;border:none;box-shadow:none">
                     <div class="fragment">
                         <p>¿Qué ocurre con lo siguiente?</p>
                         <pre><code data-trim class="javascript">
-circulo_rojo.centro.x = 15;
-console.log(circulo_verde.centro.x);
+circuloRojo.centro.x = 15;
+console.log(circuloVerde.centro.x);
                     </code></pre>
                     </div>
                 </section>
@@ -2113,6 +2110,54 @@ Complejo.CERO = new Complejo(0, 0);   <span class="arrow_box_left caja_codigo fr
                     </code></pre>
                 </section>
 
+                <section>
+                    <h4>Atributos de clase</h4>
+                    <p>Podemos declarar e inicializar atributos (estáticos)</p>
+                    <pre><code data-trim data-noescape class="javascript">
+class Punto {
+    x = 1;
+    y = 2;
+
+    static ZERO = new Punto(0, 0);
+
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+                    </code></pre>
+                </section>
+                <section>
+                    <h4>Atributos privados de clase</h4>
+                    <p>Podemos declarar los atributos como privados si su nombre comienza con <code>#</code></p>
+                    <pre><code data-trim data-noescape class="javascript">
+class Punto {
+    #x = 1;
+    #y = 2;
+
+    static ZERO = new Punto(0, 0);
+
+    constructor(x, y) {
+        this.#x = x;
+        this.#y = y;
+    }
+    get x() {
+        return this.#x;
+    }
+    set x(newX) {
+        if (newX < 0) throw TypeError('x no puede ser negativo');
+        this.#x = newX;
+    }
+}
+
+const p = new Punto(3, 4);
+console.log(p.x);<span class="fragment"> // &rarr; 3</span>
+console.log(p.y);<span class="fragment"> // &rarr; undefined</span>
+console.log(p.#y);<span class="fragment"> // &rarr; 4</span>
+p.x = 2; <span class="fragment"> // &rarr; p.#x === 2</span>
+p.#x = 2; <span class="no_arrow_box caja_codigo fragment"> ! Error</span>
+                    </code></pre>
+                </section>
 
                 <section>
                     <h4>Herencia</h4>
@@ -2509,17 +2554,30 @@ console.log(
                         En versiones anteriores podían simularse módulos utilizando otros mecanismos disponibles en el lenguaje.
                     </p>
                     <p>
-                        En temas posteriores veremos dos de estos mecanismos:
+                        Han aparecido varias aproximaciones para los módulos:
                     </p>
                     <ul>
-                        <li><strong>CommonJS</strong>, utilizado en <em>Node.js</em>.</li>
+                        <li><strong>CommonJS</strong>, creado para <em>Node.js</em>.</li>
                         <li><strong>AMD</strong> (<em>Asynchronous Module  Definition</em>), utilizado en los navegadores.</li>
+                        <li><strong>UMD</strong> (<em>Universal Module  Definition</em>), mix de los anteriores para poder utilizarlo en NodeJS y en navegadores.</li>
+                        <li><strong>ESM</strong> (<em>ES Modules</em>), módulos definidos en ES6. <span class="fragment"> Ha tardado, pero las herramientas y bibliotecas están convergiendo a este tipo de módulos.</span></li>
                     </ul>
                 </section>
 
                 <section>
-                    <p>Pese a que el sistema de módulos está definido en ECMAScript 6 (2015), los navegadores solo lo soportan de manera experimental.</p>
-                    <p>Por este motivo no lo utilizaremos en este curso.</p>
+                    <h4>Módulos ESM</h4>
+                    <ul>
+                        <li>Sistema de módulos está definido en ECMAScript 6 (2015).</li>
+                        <li>Los navegadores lo soportan de manera generalizada desde ~2018.</li>
+                        <li>NodeJS lo empezó a soportar de manera estable desde ~2019 (NodeJS 12)</li>
+                        <li>Las bibliotecas JS están migrando <em>poco a poco</em> a este tipo de módulos</li>
+                        <li>Activa automáticamente el modo estricto (<code>"use strict"</code>)</li>
+                    </ul>
+
+                    <p>En la actualidad está suficientemente extendido y soportado, por lo que <strong>utilizaremos este tipo de módulos</strong>.</p>
+
+                    <p>Más información: <a href="https://dev.to/iggredible/what-the-heck-are-cjs-amd-umd-and-esm-ikm">[+]</a></p>
+
                 </section>
 
             </section>
@@ -2534,7 +2592,7 @@ console.log(
                     <li>Iteradores.</li>
                     <li>Funciones generadoras (<code>function*</code>).</li>
                 </ul>
-                <p>Más información: <a href="http://exploringjs.com/es6.html">http://exploringjs.com/es6.html</a></p>
+                <p>Más información: <a href="http://exploringjs.com/js/index.html">Exploring Javascript (ES2024 edition)</a></p>
                 
             </section>
 
@@ -2719,10 +2777,21 @@ str.replace(r, "$2/$1");
 
             </section>
             <section>
-                <h3>Los objetos <code style="text-transform:none">Date</code></h3>
-                <p>Sirven para realizar operaciones con fechas y horas.</p>
-                <pre><code data-trim class="javascript">
-var ahora = new Date();
+                <section>
+                    <h3>Los objetos <code style="text-transform:none">Date</code></h3>
+                    <p>Sirven para realizar operaciones con fechas y horas.</p>
+                    <p>Más información: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date">[+]</a></p>
+                    <p>API es bastante compleja. Han aparecido numerosas bibliotecas para paliar las dificultades / limitaciones:</p>
+                    <ul>
+                        <li><a href="https://date-fns.org/">date-fns</a></li>
+                        <li><a href="https://moment.github.io/luxon/">luxon</a></li>
+                        <li class="fragment"><a href="https://momentjs.com/">MomentJS</a> está desaconsejada.</li>
+                    </ul>
+                    <p>Se está promoviendo la <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal">API Temporal</a> como solución estándar. <span class="fragment">Todavía no está disponible.</span></p>
+                </section>
+                <section>
+                    <pre><code data-trim class="javascript">
+const ahora = new Date();
 ahora.toString();
     // &rarr; 'Fri Oct 14 2016 14:37:56 GMT+0200 (CEST)'
 ahora.getFullYear();
@@ -2732,11 +2801,11 @@ ahora.getMonth();
 ahora.getSeconds();
     // &rarr; 56
 
-var fechaInicio = new Date(2016, 09, 26);
+const fechaInicio = new Date(2016, 09, 26);
 fechaInicio.toString();
     // &rarr; 'Wed Oct 26 2016 00:00:00 GMT+0200 (CEST)'
-                </code></pre>
-                <p>Más información: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date">[+]</a></p>
+                    </code></pre>
+                </section>
             </section>
 
             <section>
@@ -2813,14 +2882,11 @@ let d = new Diccionario();
 d.insertar(1, "Mireia");
 d.insertar(2, "David");
 d.buscar(2);           // &rarr; David
-d.contieneClave(2);    // &rarr; 2
-d.contieneClave(3);   // &rarr; 3 
+d.contieneClave(2);    // &rarr; true
+d.contieneClave(3);   // &rarr; false 
 </code></pre>
                     <p>Hasta aquí todo funciona bien.</p>
-                    <div style="color:#5050FF" class="fragment">
-                        <p>Pero esta implementación tiene un fallo... y gordo.</p>
-                        <p>¿Qué problema tiene?</p>
-                    </div>
+                    <p class="fragment">Pero esta implementación tiene <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#objects_vs._maps">limitaciones de seguridad, rendimiento, etc.</a></p>
                 </section>
 
                 <section>

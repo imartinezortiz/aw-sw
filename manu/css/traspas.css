@@ -71,6 +71,10 @@ td.http_code {
   font-weight: bold;
 }
 
+.no_arrow_box *, .arrow_box_left * {
+  color: white;
+}
+
 .caja_codigo {
   font-family:'Source Sans Pro', sans-serif !important;
   font-weight:bold !important;
