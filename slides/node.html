@@ -242,6 +242,7 @@ Is this ok? (yes) <span class="hl" style="color:#20A">yes</span>
                     <li>Nombrar todos los archivos con extensión <code>.mjs</code></li>
                     <li>Usar <code>"type": "module"</code><span class="fragment"> &rarr; Esta es la opción recomendada</span></li>
                 </ul>
+                <p class="fragment">Veremos los módulos más adelante.</p>
                 </section>
 
                 <section>
@@ -533,7 +534,7 @@ import { areaCuadrado, areaCirculo } from "<span class="hl" style="background-co
             <section>
                 <h3>Módulos Core</h3>
                 <p>Forman parte de la distribución de Node.</p>
-                <p>También se importan mediante <code>require</code>, pero sin indicar un path relativo.</p>
+                <p>También se importan mediante <code>import</code>, pero sin indicar un path relativo.</p>
                 <pre><code data-trim data-noescape class="javascript">
 import * as os from "node:os"; <span class="arrow_box_left caja_codigo">"node:" Introducido en NodeJS 18 para evitar colisiones</span>
 console.log(`Nombre del host: ${os.hostname()}`);
@@ -661,7 +662,7 @@ fact(6) = 720
 
                 <section>
                     <h4>Ejemplo</h4>
-                    <img src="../manu/images/04/Depende.svg" style="width:90%;border:none;box-shadow:none">
+                    <img src="../manu/images/04/Depende.svg" style="width:80%;border:none;box-shadow:none">
                 </section>
             </section>
 
@@ -717,10 +718,11 @@ node_modules
   "version": "1.0.0",
   "description": "Prueba de uso de paquetes",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Manuel Montenegro",
+  "author": "Ivan Martinez-Ortiz",
   "license": "ISC",
   "dependencies": {
     <span class="hl">"underscore": "^1.8.3"</span>,
@@ -851,7 +853,7 @@ mimodulo@1.0.0
                 <section>
                     <h4>&laquo;concurrente&raquo;</h4>
                     <p>En realidad, en Node solo hay un hilo en ejecución.</p>
-                    <p>En: <a href="http://nodesource.com/blog/understanding-the-nodejs-event-loop/">http://nodesource.com/blog/understanding-the-nodejs-event-loop/</a></p>
+                    <p>En: <a href="http://nodesource.com/blog/understanding-the-nodejs-event-loop/">Understanding NodeJS event loop (resumida)</a>, <a href="https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick">Understanding NodeJS Event Loop (Detallada)</a></p>
                     <p>No obstante, para este curso supongamos que realmente existe concurrencia en las funciones asíncronas.</p>
                 </section>
 
@@ -870,13 +872,10 @@ mimodulo@1.0.0
                 <section>
                     <h4>Lectura síncrona</h4>
                     <pre><code data-trim class="javascript">
-"use strict";
-
-const fs = require("fs");
+import { readFileSync } from "node:fs";
 
 try {
-    const contenido = fs.readFileSync("FichTexto.txt", 
-                                    { encoding: "utf-8" });
+    const contenido = readFileSync("FichTexto.txt", { encoding: "utf-8" });
     console.log("Fichero leído correctamente:");
     console.log(contenido);
 } catch (err) {
@@ -902,7 +901,11 @@ try {
                     <img src="../manu/images/04/Asincrona.svg" width="80%" style="border:none;box-shadow:none">
                     <p>Si la operación de lectura asíncrona se realiza de manera ajena al hilo de ejecución principal del programa, ¿cómo sabemos cuándo ha finalizado?
                     </p>
-                    <p class="fragment">Mediante el uso de funciones <strong>callback</strong>.</p>
+                    <ul>
+                        <li class="fragment">Mediante el uso de funciones <strong>callback</strong>.<span class="fragment"> Modelo antiguo</span></li>
+                        <li class="fragment">Mediante <code>Promise</code>s (promesas)</li>
+                        <li class="fragment">Usando <code>async / await</code>. Mejora el uso del mecanismo de promesas.</li>
+                    </ul>
                 </section>
 
                 <section>
@@ -930,11 +933,9 @@ try {
 
                 <section>
                     <pre><code data-trim data-noescape class="javascript">
-"use strict";
+import { readFile } from "node:fs";
 
-const fs = require("fs");
-
-fs.readFile("FichTexto.txt", { encoding:"utf-8" }, <span class="hl">ficheroLeido</span>);
+readFile("FichTexto.txt", { encoding:"utf-8" }, <span class="hl">ficheroLeido</span>);
 
 // Función callback
 function <span class="hl">ficheroLeido</span>(err, contenido) {
@@ -953,22 +954,17 @@ function <span class="hl">ficheroLeido</span>(err, contenido) {
                 <section>
                     <p>Las funciones callback suelen definirse directamente como funciones anónimas en la llamada a <code>readFile</code>.</p>
                     <pre><code data-trim class="javascript">
-"use strict";
+import { readFile } from "node:fs";
 
-const fs = require("fs");
-
-fs.readFile("FichTexto.txt", 
-            { encoding: "utf-8" },
-            (err, contenido) => {
-                if (err) {
-                    console.log("Se ha producido un error:");
-                    console.log(err.message);
-                } else {
-                    console.log("Fichero leído correctamente:");
-                    console.log(contenido);
-                }        
-            }
-);                
+readFile("FichTexto.txt", { encoding: "utf-8" }, (err, contenido) => {
+    if (err) {
+        console.log("Se ha producido un error:");
+        console.log(err.message);
+    } else {
+        console.log("Fichero leído correctamente:");
+        console.log(contenido);
+    }        
+});                
                 </code></pre>
                 </section>
 
@@ -994,20 +990,18 @@ fs.readFile("FichTexto.txt",
                 <section>
                     <h3>Un error frecuente</h3>
                     <p>¡Cuidado con el siguiente código!</p>
-                    <pre><code data-trim class="javascript">
+                    <pre><code data-trim data-noescape class="javascript">
 let contenidoFichero;
 
-fs.readFile("FichTexto.txt", 
-            { encoding: "utf-8" },
-            (err, contenido) => {
-                if (!err) {
-                    // Asignamos el contenido a la variable
-                    // externa
-                    contenidoFichero = contenido;
-                }        
-            });
+readFile("FichTexto.txt", { encoding: "utf-8" },
+(err, contenido) => {
+    if (!err) {
+        // Asignamos el contenido a la variable externa
+        contenidoFichero = contenido;
+    }        
+});
 
-console.log(contenidoFichero); // ¿Qué se imprime aquí?               
+console.log(contenidoFichero); // ¿Qué se imprime aquí? <span class="fragment"> &rarr; undefined</span>              
                 </code></pre>
                 </section>
 
@@ -1027,7 +1021,7 @@ console.log(contenidoFichero); // ¿Qué se imprime aquí?
                     <h4>Moraleja</h4>
                     <p>Si un fragmento del programa depende del resultado de una llamada asíncrona, no debe ir tras dicha llamada:</p>
                     <pre><code data-trim data-noescape class="javascript">
-fs.readFile("fich.txt", (err, contenido) => {
+readFile("fich.txt", (err, contenido) => {
     ...
 });
 <span class="hl" style="background-color:#FBB">// hacer algo con el contenido</span>
@@ -1195,11 +1189,11 @@ fs.readFile("fich.txt", (err, contenido) => {
                     <p>El módulo core <code>http</code> implementa un servidor web.
                     </p>
                     <pre><code data-trim class="javascript">
-const http = require("http");
+import { createServer } from "node:http";
                 </code></pre>
                     <p>Los objetos de la clase <code>Server</code> representan servidores web, y son creados mediante la función <code>createServer</code>, que recibe una función callback:</p>
                     <pre><code data-trim class="javascript">
-const servidor = http.createServer((request, response) => {
+const servidor = createServer((request, response) => {
         ...
 });
                 </code></pre>
@@ -1209,7 +1203,7 @@ const servidor = http.createServer((request, response) => {
 
                 <section>
                     <pre><code data-trim data-noescape class="javascript">
-http.createServer((<span class="hl" style="background-color:#b5ded8">request</span>, <span class="hl" style="background-color:#c5b5de">response</span>) => { /* ... */ });
+createServer((<span class="hl" style="background-color:#b5ded8">request</span>, <span class="hl" style="background-color:#c5b5de">response</span>) => { /* ... */ });
                 </code></pre>
                     <p>
                         El parámetro <code style="background-color:#b5ded8">request</code> de esta función callback contiene un objeto de la clase <code>IncomingMessage</code>, con atributos y métodos para acceder a cada componente de la petición: método, URL, cabeceras, etc.
@@ -1229,7 +1223,7 @@ http.createServer((<span class="hl" style="background-color:#b5ded8">request</sp
 
                 <section>
                     <pre><code data-trim class="javascript">
-const servidor = http.createServer(function(request, response) {
+const servidor = createServer(function(request, response) {
     // ...
 });
 servidor.listen(3000, (err) => {
@@ -1257,7 +1251,7 @@ servidor.listen(3000, (err) => {
                     <p>Por ejemplo:</p>
 
                     <pre class="fragment"><code data-trim class="javascript">
-const servidor = http.createServer(function(request, response) {
+const servidor = createServer(function(request, response) {
     console.log(`Método: ${request.method}`);
     console.log(`URL: ${request.url}`);
     console.log(request.headers);
@@ -1304,7 +1298,7 @@ URL: <span class="hl">/index.html</span>
                 <section>
                     <h4>Ejemplo</h4>
                     <pre><code data-trim class="javascript">
-const servidor = http.createServer(function(request, response) {
+const servidor = createServer(function(request, response) {
     response.statusCode = 200;
     response.setHeader("Content-Type", "text/html");
     response.write('&lt;!DOCTYPE html&gt;');
@@ -1329,90 +1323,11 @@ const servidor = http.createServer(function(request, response) {
             </section>
 
             <section>
-                <section>
-                    <h3>Otro ejemplo: acceso a una BD</h3>
-                    <p>Utilizando la base de datos vista anteriormente, queremos una página que devuelva, para cada usuario, su nombre, apellidos y el número de direcciones de correo asociadas.</p>
-                    <img src="../manu/images/04/BDTelefonosNavegador.png" width="60%">
-                </section>
-                <section>
-                    <p>Implementamos una función <code>consultaBD</code>, que realiza la consulta SQL correspondiente y pasa los resultados a la función callback pasada como parámetro:</p>
-                    <pre><code data-trim class="javascript" style="font-size:90%">
-const pool = ...
-
-function consultaBD(callback) {
-    pool.getConnection(function(err, conexion) {
-      if (err) { callback(err); }
-      else {
-        conexion.query(
-          "SELECT Nombre, Apellidos, COUNT(tc.Correo) as NumCorreos " +
-          "FROM Contactos c LEFT JOIN Tiene_Correo tc ON c.Id = tc.Id " +
-          "GROUP BY c.id",
-          function(err, rows) {
-                conexion.release();
-                callback(null, rows);
-          });
-      }
-    });  
-}
-                
-                </code></pre>
-                </section>
-
-                <section>
-                    <p>Función callback del servidor:</p>
-                    <pre><code data-trim class="javascript">
-const servidor = http.createServer(function(request, response) {
-    consultaBD(function(err, filasBD) {
-        if (err) {
-            response.statusCode = 500;
-            console.error(err);
-        } else {
-            response.statusCode = 200;
-            devolverPagina(response, filasBD);
-        }
-    });
-});
-                
-                </code></pre>
-                </section>
-
-                <section>
-                    <p>La función <code>devolverPagina</code> es la que se encarga de generar el código HTML correspondiente:</p>
-                    <pre><code data-trim class="javascript" style="font-size:90%;line-height:120%">
-function devolverPagina(response, filasBD) {
-    response.setHeader("Content-Type", "text/html");
-    response.write('&lt;html&gt;');
-    response.write('&lt;head&gt;');
-    response.write('&lt;title&gt;Base de datos de teléfonos&lt;/title&gt;');
-    response.write('&lt;meta charset="utf-8">');
-    response.write('&lt;style&gt;th, td { border: 1px solid }&lt;/style&gt;');
-    response.write('&lt;/head&gt;');
-    response.write('&lt;body&gt;');
-    response.write('&lt;table&gt;');
-    response.write('&lt;tr&gt;&lt;th&gt;Nombre&lt;/th&gt;&lt;th&gt;Apellidos&lt;/th&gt;' + 
-                   '&lt;th&gt;Número direcciones&lt;/th&gt;&lt;/tr&gt;');
-    filasBD.forEach(function(fila) {
-        response.write('&lt;tr&gt;');
-        response.write(`&lt;td&gt;${fila.Nombre}&lt;/td&gt;`);
-        response.write(`&lt;td&gt;${fila.Apellidos}&lt;/td&gt;`);
-        response.write(`&lt;td&gt;${fila.NumCorreos}&lt;/td&gt;`);
-        response.write('&lt;/tr&gt;');
-    });
-    response.write('&lt;/table&gt;');
-    response.write('&lt;/body&gt;');
-    response.end();
-}                
-                </code></pre>
-                </section>
-            </section>
-
-
-            <section>
                 <h3>Esquema general de un servidor</h3>
                 <p>La función callback del servidor devuelve una respuesta en función de la petición recibida.</p>
                 <p>Una función callback típica tendría la siguiente forma:</p>
                 <pre><code data-trim class="javascript">
-const servidor = http.createServer(function(request, response) {
+const servidor = createServer(function(request, response) {
     const method = request.method;
     const url = request.url;
     if (method === "GET" &amp;&amp; url === "/index.html") {
