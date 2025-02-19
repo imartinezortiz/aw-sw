@@ -1909,64 +1909,63 @@ console.log(prototipoComplejo.isPrototypeOf(c3));
             </section>
 
             <section>
-                <section>
-                    <div class="bloquetitulo" style="padding:20px">
-                        <h3><span class="titulo_rareza">Rareza 8</span><span style="display:none">:</span><br>Las clases en Javascript llegaron veinte años tarde</h3>
-                    </div>
-                </section>
+                <div class="bloquetitulo" style="padding:20px">
+                    <h3><span class="titulo_rareza">Rareza 8</span><span style="display:none">:</span><br>Las clases en Javascript llegaron veinte años tarde</h3>
+                </div>
+            </section>
 
-                <section>
-                    <p>Recordemos nuestro ejemplo sobre números complejos</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <p>Recordemos nuestro ejemplo sobre números complejos</p>
+                <pre><code data-trim data-noescape class="javascript">
 let prototipoComplejo = {
-    modulo: function() {
-        return Math.sqrt(this.r * this.r + this.i * this.i);
-    },
-    argumento: function() {
-        return Math.atan2(this.i, this. r);
-    }
+modulo: function() {
+    return Math.sqrt(this.r * this.r + this.i * this.i);
+},
+argumento: function() {
+    return Math.atan2(this.i, this. r);
+}
 };
 
 
 function construirComplejo(real, imag) {
-    var resultado = <span class="hl">Object.create(prototipoComplejo)</span>;
-    resultado.r = real;
-    resultado.i = imag;
-    return resultado;
+var resultado = <span class="hl">Object.create(prototipoComplejo)</span>;
+resultado.r = real;
+resultado.i = imag;
+return resultado;
 }
-                    </code></pre>
-                    <pre><code data-trim class="javascript">
+                </code></pre>
+                <pre><code data-trim class="javascript">
 var c1 = construirComplejo(-3, 0);
 var c2 = construirComplejo(1, 1);
-                    </code></pre>
-                </section>
+                </code></pre>
+            </section>
 
-                <section>
-                    <p>La situación queda representada así:</p>
-                    <img src="../manu/images/03/PrototipoComplejo.svg" class="noborder" style="width:90%">
-                </section>
+            <section>
+                <p>La situación queda representada así:</p>
+                <img src="../manu/images/03/PrototipoComplejo.svg" class="noborder" style="width:90%">
+            </section>
 
-                <section>
-                    <p>Este patrón es bastante común en Javascript para simular las <strong>clases</strong> de otros lenguajes de programación:</p>
+            <section>
+                <p>Este patrón es bastante común en Javascript para simular las <strong>clases</strong> de otros lenguajes de programación:</p>
+                <ul>
+                    <li>Tener un objeto prototipo que almacene los métodos de la clase.</li>
+                    <li>Tener una función que construya las instancias de la clase, enlazándolas con el prototipo.</li>
+                </ul>
+
+                <div class="fragment">
+                    <p>Era un patrón tan común que Javascript proporcionaba mecanismos para facilitar su uso.</p>
                     <ul>
-                        <li>Tener un objeto prototipo que almacene los métodos de la clase.</li>
-                        <li>Tener una función que construya las instancias de la clase, enlazándolas con el prototipo.</li>
+                        <li>ECMAScript &leq; 5: funciones constructoras + operador <code>new</code>.</li>
+                        <li>ECMAScript &geq; 6: clases + operador <code>new</code>.</li>
                     </ul>
+                </div>
 
-                    <div class="fragment">
-                        <p>Era un patrón tan común que Javascript proporcionaba mecanismos para facilitar su uso.</p>
-                        <ul>
-                            <li>ECMAScript &leq; 5: funciones constructoras + operador <code>new</code>.</li>
-                            <li>ECMAScript &geq; 6: clases + operador <code>new</code>.</li>
-                        </ul>
-                    </div>
+            </section>
 
-                </section>
-
-                <section>
-                    <h4>Clases</h4>
-                    <p>Las clases de ECMAScript 6 son similares a las de Java:</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <h4>Clases</h4>
+                <p>Las clases de ECMAScript 6 son similares a las de Java:</p>
+                <pre><code data-trim data-noescape class="javascript">
 class Complejo {
     constructor(real, imag) {   <span class="arrow_box_left caja_codigo fragment">Constructora de clase</span>
         this.r = real;
@@ -1981,38 +1980,39 @@ class Complejo {
         return Math.atan2(this.i, this.r);
     }
 }</code></pre>
-                    <p>Esta declaración crea un objeto llamado <code>Complejo.prototype</code> que almacena estos dos métodos.</p>
-                </section>
+                <p>Esta declaración crea un objeto llamado <code>Complejo.prototype</code> que almacena estos dos métodos.</p>
+            </section>
 
-                <section>
-                    <p>Al igual que en Java, se crean instancias mediante el operador <code>new</code>.</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <p>Al igual que en Java, se crean instancias mediante el operador <code>new</code>.</p>
+                <pre><code data-trim data-noescape class="javascript">
 let c1 = new Complejo(-3, 0);
 let c2 = new Complejo(1, 1);
-                    </code></pre>
-                    <p>Esto hace que los objetos <code>c1</code> y <code>c2</code> tengan a <code>Complejo.prototype</code> como prototipo.</p>
-                    <pre><code data-trim data-noescape class="javascript">
+                </code></pre>
+                <p>Esto hace que los objetos <code>c1</code> y <code>c2</code> tengan a <code>Complejo.prototype</code> como prototipo.</p>
+                <pre><code data-trim data-noescape class="javascript">
 console.log(c1.modulo());  // &rarr; 3
 console.log(c2.modulo());  // &rarr; 1.4142135623730951
 </code></pre>
-                </section>
+            </section>
 
-                <section>
-                    <img src="../manu/images/03/PrototipoComplejo2.svg" class="noborder" style="width:90%">
-                </section>
+            <section>
+                <img src="../manu/images/03/PrototipoComplejo2.svg" class="noborder" style="width:90%">
+            </section>
 
-                <section>
-                    <h4>El operador <code style="text-transform:none">instanceof</code></h4>
-                    <p>La expresión <code>x instanceof C</code> se evalúa a <code>true</code> si el objeto <code>C.prototype</code> es alcanzable ascendiendo desde <code>x</code> en la cadena de prototipos:</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <h4>El operador <code style="text-transform:none">instanceof</code></h4>
+                <p>La expresión <code>x instanceof C</code> se evalúa a <code>true</code> si el objeto <code>C.prototype</code> es alcanzable ascendiendo desde <code>x</code> en la cadena de prototipos:</p>
+                <pre><code data-trim data-noescape class="javascript">
 var x = new Complejo(-3, 0);
 
 console.log(x instanceof Complejo); <span class="fragment">// &rarr; true</span>
 console.log(x instanceof Object);   <span class="fragment">// &rarr; true</span>
 console.log(x instanceof Number);   <span class="fragment">// &rarr; false</span>
-                    </code></pre>
-                </section>
+                </code></pre>
+            </section>
 
+            <section>
                 <section>
                     <h4>Funciones <code>get</code>/<code>set</code></h4>
                     <p>Son funciones llamadas cada vez que se lee o escribe a un determinado atributo.</p>
@@ -2076,7 +2076,9 @@ p.edad = -2;            // No modifica la edad
 console.log(p.edad);    // Imprime: 23         
                     </code></pre>
                 </section>
+            </section>
 
+            <section>
                 <section>
                     <h4>Métodos estáticos</h4>
                     <p>Son métodos de clase.</p>
@@ -2109,11 +2111,12 @@ Complejo.desdePolar = (mod, arg) => {
 Complejo.CERO = new Complejo(0, 0);   <span class="arrow_box_left caja_codigo fragment">Atributos estáticos</span>
                     </code></pre>
                 </section>
+            </section>
 
-                <section>
-                    <h4>Atributos de clase</h4>
-                    <p>Podemos declarar e inicializar atributos (estáticos)</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <h4>Atributos de clase</h4>
+                <p>Podemos declarar e inicializar atributos (incluidos estáticos)</p>
+                <pre><code data-trim data-noescape class="javascript">
 class Punto {
     x = 1;
     y = 2;
@@ -2125,12 +2128,12 @@ class Punto {
         this.y = y;
     }
 }
-                    </code></pre>
-                </section>
-                <section>
-                    <h4>Atributos privados de clase</h4>
-                    <p>Podemos declarar los atributos como privados si su nombre comienza con <code>#</code></p>
-                    <pre><code data-trim data-noescape class="javascript">
+                </code></pre>
+            </section>
+            <section>
+                <h4>Atributos privados de clase</h4>
+                <p>Podemos declarar los atributos como privados si su nombre comienza con <code>#</code></p>
+                <pre><code data-trim data-noescape class="javascript">
 class Punto {
     #x = 1;
     #y = 2;
@@ -2156,9 +2159,10 @@ console.log(p.y);<span class="fragment"> // &rarr; undefined</span>
 console.log(p.#y);<span class="fragment"> // &rarr; 4</span>
 p.x = 2; <span class="fragment"> // &rarr; p.#x === 2</span>
 p.#x = 2; <span class="no_arrow_box caja_codigo fragment"> ! Error</span>
-                    </code></pre>
-                </section>
+                </code></pre>
+            </section>
 
+            <section>
                 <section>
                     <h4>Herencia</h4>
                     <p>Se permite herencia simple, al igual que en Java.</p>
@@ -2213,52 +2217,49 @@ let c1 = new Complejo(-1, 0);
 console.log(`El número es ${c1}`);  // Imprime: El número es (-1, 0)
 </code></pre>
                 </section>
-
             </section>
 
+            <section>
+                <div class="bloquetitulo" style="padding:20px">
+                    <h3><span class="titulo_rareza">Rareza 9</span><span style="display:none">:</span><br>Los arrays son flexibles, y también son objetos</h3>
+                </div>
+            </section>
 
             <section>
-                <section>
-                    <div class="bloquetitulo" style="padding:20px">
-                        <h3><span class="titulo_rareza">Rareza 9</span><span style="display:none">:</span><br>Los arrays son flexibles, y también son objetos</h3>
-                    </div>
-                </section>
-
-                <section>
-                    <h4>Inicialización de arrays</h4>
-                    <p>
-                        Un array puede inicializarse enumerando sus elementos,
-                    </p>
-                    <pre><code data-trim class="javascript">
+                <h4>Inicialización de arrays</h4>
+                <p>
+                    Un array puede inicializarse enumerando sus elementos,
+                </p>
+                <pre><code data-trim class="javascript">
 let a = [23, 12, 69, 11, 34, 45];
-                    </code></pre>
-                    <div class="fragment">
-                        <p>o bien mediante el constructor <code>Array</code>:</p>
-                        <pre><code data-trim class="javascript">
+                </code></pre>
+                <div class="fragment">
+                    <p>o bien mediante el constructor <code>Array</code>:</p>
+                    <pre><code data-trim class="javascript">
 let b = new Array(10);
 // Todos los elementos tienen el valor 'undefined'
-                    </code></pre>
-                    </div>
-                </section>
+                </code></pre>
+                </div>
+            </section>
 
-                <section>
-                    <h4>Los arrays son objetos</h4>
-                    <p>Es posible asignar propiedades arbitrarias a un array.</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <h4>Los arrays son objetos</h4>
+                <p>Es posible asignar propiedades arbitrarias a un array.</p>
+                <pre><code data-trim class="javascript">
 let a = [23, 12, 69, 11, 34, 45];
 a.estaOrdenado = false;
 
 console.log(a);
-    // &rarr; [ 1, 5, 3, 5, 4, esta_ordenado: false ]
-                    </code></pre>
+// &rarr; [ 1, 5, 3, 5, 4, esta_ordenado: false ]
+                </code></pre>
 
-                    <p class="fragment">Todos los arrays extienden a la clase <code>Array</code>, que contiene algunos métodos de utilidad sobre arrays. <a href="https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Array/prototype">[+]</a></p>
-                </section>
+                <p class="fragment">Todos los arrays extienden a la clase <code>Array</code>, que contiene algunos métodos de utilidad sobre arrays. <a href="https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Array/prototype">[+]</a></p>
+            </section>
 
-                <section>
-                    <h4>Los arrays son flexibles y pueden tener &laquo;huecos&raquo;</h4>
-                    <p>Puede variarse la longitud de un array en tiempo de ejecución. Basta con modificar la propiedad <code>length</code>:</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <h4>Los arrays son flexibles y pueden tener &laquo;huecos&raquo;</h4>
+                <p>Puede variarse la longitud de un array en tiempo de ejecución. Basta con modificar la propiedad <code>length</code>:</p>
+                <pre><code data-trim class="javascript">
 let a = [23, 12, 69, 11, 34, 45];
 a.length += 2;  // Ampliamos el array
 
@@ -2267,16 +2268,17 @@ console.log(a); // &rarr; [ 23, 12, 69, 11, 34, 45, ,  ]
 a.length = 3;  // Reducimos el array
 
 console.log(a); // &rarr; [ 23, 12, 69 ]
-                    </code></pre>
-                    <div class="fragment">
-                        <p>También se puede ampliar el array añadiendo elementos fuera de su rango:</p>
-                        <pre><code data-trim class="javascript">
+                </code></pre>
+                <div class="fragment">
+                    <p>También se puede ampliar el array añadiendo elementos fuera de su rango:</p>
+                    <pre><code data-trim class="javascript">
 a[5] = 32;
 console.log(a); // &rarr; [ 23, 12, 69, , , 32 ]
-                    </code></pre>
-                    </div>
-                </section>
+                </code></pre>
+                </div>
+            </section>
 
+            <section>
                 <section>
                     <p>Métodos que modifican el tamaño del array:</p>
                     <ul>
@@ -2324,142 +2326,143 @@ a.splice(2, 2); <span class="fragment">// &rarr; [3, 4]</span>
     <span class="fragment">// a = [1, 2, 5];</span>
                     </code></pre>
                 </section>
+            </section>
 
-                <section>
-                    <p>Otras operaciones destructivas:</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>Otras operaciones destructivas:</p>
+                <pre><code data-trim class="javascript">
 a = [4, 7, 4, 1, 3, 5];
 a.sort();
-    // a = [1, 3, 4, 4, 5, 7]
+// a = [1, 3, 4, 4, 5, 7]
 
 a.reverse();
-    // a = [7, 5, 4, 4, 3, 1]
-                    </code></pre>
-                </section>
+// a = [7, 5, 4, 4, 3, 1]
+                </code></pre>
+            </section>
 
-                <section>
-                    <p>Operaciones no destructivas:</p>
-                    <ul>
-                        <li>
-                            <code>concat(arr_1, ..., arr_n)</code>
-                            <br> Añade los arrays pasados como argumento y devuelve el resultado.
-                            <pre><code data-trim class="javascript">
+            <section>
+                <p>Operaciones no destructivas:</p>
+                <ul>
+                    <li>
+                        <code>concat(arr_1, ..., arr_n)</code>
+                        <br> Añade los arrays pasados como argumento y devuelve el resultado.
+                        <pre><code data-trim class="javascript">
 [1, 2, 3].concat([4, 5], [6, 7, 8]);
-    // &rarr; [1, 2, 3, 4, 5, 6, 7, 8]
+// &rarr; [1, 2, 3, 4, 5, 6, 7, 8]
 
-                            </code></pre>
-                        </li>
-                        <li>
-                            <code>slice(ini, fin)</code>
-                            <br> Devuelve el segmento <code>[ini, fin)</code> del array.
-                            <pre><code data-trim class="javascript">
+                        </code></pre>
+                    </li>
+                    <li>
+                        <code>slice(ini, fin)</code>
+                        <br> Devuelve el segmento <code>[ini, fin)</code> del array.
+                        <pre><code data-trim class="javascript">
 ["a", "b", "c", "d", "e", "f", "g"].slice(2, 5);
-    // &rarr; ["c", "d", "e"]
-                            </code></pre>
-                        </li>
-                    </ul>
-                </section>
+// &rarr; ["c", "d", "e"]
+                        </code></pre>
+                    </li>
+                </ul>
+            </section>
 
-                <section>
-                    <ul>
-                        <li>
-                            <code>join(sep)</code>
-                            <br> Concatena los elementos del array intercalando
-                            <code>sep</code> como separador:
-                            <pre><code data-trim class="javascript">
+            <section>
+                <ul>
+                    <li>
+                        <code>join(sep)</code>
+                        <br> Concatena los elementos del array intercalando
+                        <code>sep</code> como separador:
+                        <pre><code data-trim class="javascript">
 ["Esto", "no", "me", "gusta"].join(" - ");
-    // &rarr; "Esto - no - me - gusta"
-                            </code></pre>
-                        </li>
-                    </ul>
-                </section>
+// &rarr; "Esto - no - me - gusta"
+                        </code></pre>
+                    </li>
+                </ul>
+            </section>
 
-                <section>
-                    <p>Búsqueda de valores:</p>
-                    <ul>
-                        <li><code>indexOf(elem, [pos_inicial])</code>
-                            <p>Devuelve el índice de la última aparición de <code>elem</code> en el array, o -1 si no se encuentra.</p>
-                        </li>
-                        <li><code>lastIndexOf(elem)</code>
-                            <p>Devuelve el índice de la última aparición de <code>elem</code> en el array, o -1 si no se encuentra.</p>
-                        </li>
-                    </ul>
-                </section>
+            <section>
+                <p>Búsqueda de valores:</p>
+                <ul>
+                    <li><code>indexOf(elem, [pos_inicial])</code>
+                        <p>Devuelve el índice de la última aparición de <code>elem</code> en el array, o -1 si no se encuentra.</p>
+                    </li>
+                    <li><code>lastIndexOf(elem)</code>
+                        <p>Devuelve el índice de la última aparición de <code>elem</code> en el array, o -1 si no se encuentra.</p>
+                    </li>
+                    <li><code>includes(elem, [pos_inicial])</code>
+                        <p>Devuelve <code>true</code> si <code>elem</code> en el array, o <code>false</code> en otro caso.</p></li>
+                </ul>
+            </section>
+
+            <section>
+                <div class="bloquetitulo" style="padding:20px">
+                    <h3><span class="titulo_rareza">Rareza 10</span><span style="display:none">:</span><br>Las funciones de orden superior sobre arrays</h3>
+                </div>
+            </section>
+
+            <section>
+                <h4>Funciones de orden superior</h4>
+                <p>Una función de <strong>orden superior</strong> es una función que recibe funciones como parámetro y/o devuelve funciones.</p>
+                <p>Javascript proporciona varios métodos de orden superior para arrays que son muy útiles en la práctica.</p>
+            </section>
+
+            <section>
+                <h4>Iteración: método <code style="text-transform:none">forEach</code></h4>
+                <ul>
+                    <li>
+                        <code>forEach(f)</code>
+                        <br> Aplica la función <code>f</code> sobre todos los elementos del array.
+                    </li>
+                    <pre><code data-trim class="javascript">
+let personas = [ { nombre: "Ricardo", edad: 45},
+             { nombre: "Julia", edad: 24 },
+             { nombre: "Ashley", edad: 28 } ];
+
+personas.forEach(p => {
+console.log("Hola, me llamo " + p.nombre
+            + " y tengo " + p.edad + " años");
+})
+
+                    </code></pre>
+                </ul>
+            </section>
+
+            <section>
+                <h4>Funciones de transformación</h4>
+                <ul>
+                    <li>
+                        <code>map(f)</code>
+                        <br> Aplica la función <code>f</code> a cada elemento del array, devolviendo otro array con los resultados.
+                        <pre><code data-trim class="javascript">
+let a = [1, 3, 5, 2, 4];
+let dobles = a.map(n => n * 2);
+console.log(dobles); // [2, 6, 10, 4, 8]
+                        </code></pre>
+                    </li>
+                    <li class="fragment">
+                        <code>filter(f)</code>
+                        <br> Selecciona los elementos <code>x</code> del array tales que <code>f(x)</code> devuelve <code>true</code>.
+                        <pre><code data-trim class="javascript">
+let pares = a.filter(n => n % 2 === 0);
+console.log(pares); // [2, 4]
+                        </code></pre>
+                    </li>
+                </ul>
 
             </section>
 
             <section>
-                <section>
-                    <div class="bloquetitulo" style="padding:20px">
-                        <h3><span class="titulo_rareza">Rareza 10</span><span style="display:none">:</span><br>Las funciones de orden superior sobre arrays</h3>
-                    </div>
-                </section>
+                <h4>Funciones de reducción (I)</h4>
+                <ul>
+                    <li>
+                        <code>every(f)</code>
+                        <br> Devuelve <code>true</code> si para <em>todo</em> elemento <code>x</code> del array, <code>f(x)</code> devuelve <code>true</code>.
+                    </li>
+                    <li>
+                        <code>some(f)</code>
+                        <br> Devuelve <code>true</code> si <em>existe</em> un elemento <code>x</code> en el array tal que <code>f(x)</code> devuelva <code>true</code>.
+                    </li>
+                </ul>
+            </section>
 
-                <section>
-                    <h4>Funciones de orden superior</h4>
-                    <p>Una función de <strong>orden superior</strong> es una función que recibe funciones como parámetro y/o devuelve funciones.</p>
-                    <p>Javascript proporciona varios métodos de orden superior para arrays que son muy útiles en la práctica.</p>
-                </section>
-
-                <section>
-                    <h4>Iteración: método <code style="text-transform:none">forEach</code></h4>
-                    <ul>
-                        <li>
-                            <code>forEach(f)</code>
-                            <br> Aplica la función <code>f</code> sobre todos los elementos del array.
-                        </li>
-                        <pre><code data-trim class="javascript">
-let personas = [ { nombre: "Ricardo", edad: 45},
-                 { nombre: "Julia", edad: 24 },
-                 { nombre: "Ashley", edad: 28 } ];
-
-personas.forEach(p => {
-    console.log("Hola, me llamo " + p.nombre
-                + " y tengo " + p.edad + " años");
-})
-
-                        </code></pre>
-                    </ul>
-                </section>
-
-
-                <section>
-                    <h4>Funciones de transformación</h4>
-                    <ul>
-                        <li>
-                            <code>map(f)</code>
-                            <br> Aplica la función <code>f</code> a cada elemento del array, devolviendo otro array con los resultados.
-                            <pre><code data-trim class="javascript">
-let a = [1, 3, 5, 2, 4];
-let dobles = a.map(n => n * 2);
-console.log(dobles); // [2, 6, 10, 4, 8]
-                            </code></pre>
-                        </li>
-                        <li class="fragment">
-                            <code>filter(f)</code>
-                            <br> Selecciona los elementos <code>x</code> del array tales que <code>f(x)</code> devuelve <code>true</code>.
-                            <pre><code data-trim class="javascript">
-let pares = a.filter(n => n % 2 === 0);
-console.log(pares); // [2, 4]
-                            </code></pre>
-                        </li>
-                    </ul>
-
-                </section>
-
-                <section>
-                    <h4>Funciones de reducción (I)</h4>
-                    <ul>
-                        <li>
-                            <code>every(f)</code>
-                            <br> Devuelve <code>true</code> si para <em>todo</em> elemento <code>x</code> del array, <code>f(x)</code> devuelve <code>true</code>.
-                        </li>
-                        <li>
-                            <code>some(f)</code>
-                            <br> Devuelve <code>true</code> si <em>existe</em> un elemento <code>x</code> en el array tal que <code>f(x)</code> devuelva <code>true</code>.
-                        </li>
-                    </ul>
-                </section>
+            <section>
 
                 <section>
                     <h4>Funciones de reducción (II)</h4>
@@ -2543,7 +2546,7 @@ console.log(
             <section>
                 <section>
                     <div class="bloquetitulo" style="padding:20px">
-                        <h3><span class="titulo_rareza">Rareza 11</span><span style="display:none">:</span><br>los módulos aún están por aterrizar</h3>
+                        <h3><span class="titulo_rareza">Rareza 11</span><span style="display:none">:</span><br>los módulos acaban de aterrizar</h3>
                     </div>
                 </section>
                 <section>
@@ -2619,47 +2622,48 @@ console.log(
             </section>
 
             <section>
-                <section>
-                    <h3>Expresiones regulares</h3>
-                    <p>Una expresión regular es un patrón que representa una o varias cadenas de texto.</p>
-                    <p>Por ejemplo, la expresión regular <code>[A-Z][0-9]{3}</code> denota el conjunto de cadenas que comienzan por una letra mayúscula y van seguidas por tres dígitos</p>
-                    <p style="font-size:80%">Ejs: <code>A324</code>, <code>F983</code>, etc.</p>
-                    <p class="fragment">Ver: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">Lenguaje de expresiones regulares</a></p>
-                </section>
+                <h3>Expresiones regulares</h3>
+                <p>Una expresión regular es un patrón que representa una o varias cadenas de texto.</p>
+                <p>Por ejemplo, la expresión regular <code>[A-Z][0-9]{3}</code> denota el conjunto de cadenas que comienzan por una letra mayúscula y van seguidas por tres dígitos</p>
+                <p style="font-size:80%">Ejs: <code>A324</code>, <code>F983</code>, etc.</p>
+                <p class="fragment">Ver: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">Lenguaje de expresiones regulares</a></p>
+            </section>
 
-                <section>
-                    <p>En Javascript se delimitan las expresiones regulares por símbolos <code>/</code></p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>En Javascript se delimitan las expresiones regulares por símbolos <code>/</code></p>
+                <pre><code data-trim class="javascript">
 var expr = /[A-Z][0-9]{3}/;
-                </code></pre>
-                    <p class="fragment">Las expresiones regulares son objetos con los siguientes métodos:</p>
-                    <ul>
-                        <li class="fragment">
-                            <code>test(str)</code>: Devuelve <code>true</code> si en la cadena <code>str</code> existe una subcadena que encaja con la expresión, o <code>false</code> en caso contrario.
-                        </li>
-                        <li class="fragment">
-                            <code>exec(str)</code>: También comprueba el ajuste de alguna subcadena de <code>str</code> con el patrón, pero devuelve más información sobre el ajuste producido (o <code>null</code> si no hay ajuste).
-                        </li>
-                    </ul>
-                </section>
+            </code></pre>
+                <p class="fragment">Las expresiones regulares son objetos con los siguientes métodos:</p>
+                <ul>
+                    <li class="fragment">
+                        <code>test(str)</code>: Devuelve <code>true</code> si en la cadena <code>str</code> existe una subcadena que encaja con la expresión, o <code>false</code> en caso contrario.
+                    </li>
+                    <li class="fragment">
+                        <code>exec(str)</code>: También comprueba el ajuste de alguna subcadena de <code>str</code> con el patrón, pero devuelve más información sobre el ajuste producido (o <code>null</code> si no hay ajuste).
+                    </li>
+                </ul>
+            </section>
 
-                <section>
-                    <h4>Método <code style="text-transform:none">test</code></h4>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <h4>Método <code style="text-transform:none">test</code></h4>
+                <pre><code data-trim data-noescape class="javascript">
 /[A-Z][0-9]{3}/.test("A655");
-    <span class="fragment">// &rarr; true</span>
+<span class="fragment">// &rarr; true</span>
 /[A-Z][0-9]{3}/.test("Otra cosa");
-    <span class="fragment">// &rarr; false</span>
+<span class="fragment">// &rarr; false</span>
 
 /el|la|los|las/.test("Esta frase tiene un artículo");
-    <span class="fragment">// &rarr; false</span>
+<span class="fragment">// &rarr; false</span>
 /el|la|los|las/.test("Esta clase tiene un artículo");
-    <span class="fragment">// &rarr; true</span>
+<span class="fragment">// &rarr; true</span>
 /\b(el|la|los|las)\b/.test("Esta clase tiene un artículo");
-    <span class="fragment">// &rarr; false</span>
-            </code></pre>
-                    <p>El símbolo <code>\b</code> representa el límite de una palabra.</p>
-                </section>
+<span class="fragment">// &rarr; false</span>
+        </code></pre>
+                <p>El símbolo <code>\b</code> representa el límite de una palabra.</p>
+            </section>
+
+            <section>
 
                 <section>
                     <h4>Método <code style="text-transform:none">exec</code></h4>
@@ -2696,6 +2700,9 @@ result[2] <span class="fragment">// &rarr; "AWD"      (Segundo grupo de captura)
 result.index <span class="fragment">// &rarr; 25   (Posición del ajuste dentro de la cadena)</span>
                 </code></pre>
                 </section>
+            </section>
+
+            <section>
 
                 <section>
                     <h4>Modificadores de expresiones regulares</h4>
@@ -2746,6 +2753,10 @@ str.match(/^Hola/gm);
                 </code></pre>
                 </section>
 
+            </section>
+
+            <section>
+
                 <section>
                     <h4>Métodos de cadenas relacionados con expresiones regulares</h4>
                     <ul>
@@ -2776,6 +2787,7 @@ str.replace(r, "$2/$1");
                 </section>
 
             </section>
+
             <section>
                 <section>
                     <h3>Los objetos <code style="text-transform:none">Date</code></h3>
@@ -2790,7 +2802,7 @@ str.replace(r, "$2/$1");
                     <p>Se está promoviendo la <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal">API Temporal</a> como solución estándar. <span class="fragment">Todavía no está disponible.</span></p>
                 </section>
                 <section>
-                    <pre><code data-trim class="javascript">
+                    <pre><code data-trim data-noescape="" class="javascript">
 const ahora = new Date();
 ahora.toString();
     // &rarr; 'Fri Oct 14 2016 14:37:56 GMT+0200 (CEST)'
@@ -2801,7 +2813,7 @@ ahora.getMonth();
 ahora.getSeconds();
     // &rarr; 56
 
-const fechaInicio = new Date(2016, 09, 26);
+const fechaInicio = new Date(2016, 09, 26); <span class="arrow_box_left caja_codigo fragment">Los meses empizan por 0, pero los días no !</span>
 fechaInicio.toString();
     // &rarr; 'Wed Oct 26 2016 00:00:00 GMT+0200 (CEST)'
                     </code></pre>

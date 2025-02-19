@@ -66,19 +66,18 @@
             </section>
 
             <section>
-                <section>
-                    <h2>Introducción</h2>
-                    <p>Conocemos el módulo <code>http</code>, que implementa la funcionalidad de un servidor web.</p>
+                <h2>Introducción</h2>
+                <p>Conocemos el módulo <code>http</code>, que implementa la funcionalidad de un servidor web.</p>
 
-                    <img src="../manu/images/05/EsquemaNodeHTTP.svg" width="90%" style="border:none;box-shadow:none">
-                </section>
+                <img src="../manu/images/05/EsquemaNodeHTTP.svg" width="90%" style="border:none;box-shadow:none">
+            </section>
 
-                <section>
-                    <p>La función callback distingue casos en función de la URL indicada por el cliente en su petición.</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>La función callback distingue casos en función de la URL indicada por el cliente en su petición.</p>
+                <pre><code data-trim class="javascript">
 const servidor = createServer(function(request, response) {
-    var method = request.method;
-    var url = request.url;
+    const method = request.method;
+    const url = request.url;
     if (method === "GET" &amp;&amp; url === "/index.html") {
         // Servir página principal.
     } else if (method === "GET" &amp;&amp; url === "/index.css") {
@@ -91,20 +90,19 @@ const servidor = createServer(function(request, response) {
         response.statusCode = 404;
     }
 });
-                </code></pre>
-                    <p class="fragment"><strong>Desventaja:</strong> código difícil de mantener.</p>
-                </section>
+            </code></pre>
+                <p class="fragment"><strong>Desventaja:</strong> código difícil de mantener.</p>
+            </section>
 
-                <section>
-                    <p>El módulo <code>http</code> resulta insuficiente en aplicaciones web grandes, que normalmente requieren:</p>
-                    <ul>
-                        <li>Manejo de cookies</li>
-                        <li>Validación de formularios</li>
-                        <li>Gestión de páginas web estáticas</li>
-                        <li>Registro de peticiones (<code>logging</code>)</li>
-                        <li>Gestión de las vistas de una aplicación (<em>templates</em>)</li>
-                    </ul>
-                </section>
+            <section>
+                <p>El módulo <code>http</code> resulta insuficiente en aplicaciones web grandes, que normalmente requieren:</p>
+                <ul>
+                    <li>Manejo de cookies</li>
+                    <li>Validación de formularios</li>
+                    <li>Gestión de páginas web estáticas</li>
+                    <li>Registro de peticiones (<code>logging</code>)</li>
+                    <li>Gestión de las vistas de una aplicación (<em>templates</em>)</li>
+                </ul>
             </section>
 
             <section>
@@ -199,103 +197,102 @@ const servidor = createServer(function(request, response) {
                 </ol>
             </section>
 
-
             <section>
-                <section>
-                    <h2>Primera aplicación con Express.js</h2>
-                    <p>Creamos un proyecto nuevo y añadimos <code>express</code> como dependencia:</p>
-                    <pre><code data-trim class="no-highlight">
+                <h2>Primera aplicación con Express.js</h2>
+                <p>Creamos un proyecto nuevo y añadimos <code>express</code> como dependencia:</p>
+                <pre><code data-trim class="no-highlight">
 # npm init
 ...
 # npm install express
-                </code></pre>
-                </section>
+            </code></pre>
+            </section>
 
-                <section>
-                    <p>Escribimos un programa <code>main.js</code> que comienza del siguiente modo:</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>Escribimos un programa <code>main.js</code> que comienza del siguiente modo:</p>
+                <pre><code data-trim class="javascript">
 // main.js
 // -------
 
 import express from 'express';
 const app = express();
 // ...
-                </code></pre>
-                    <p>El módulo <code>express</code> exporta una única función.</p>
-                    <p>Cada llamada a esta función devuelve una <strong>aplicación</strong>. Una aplicación es un servidor HTTP que escucha en un determinado puerto.</p>
-                </section>
+            </code></pre>
+                <p>El módulo <code>express</code> exporta una única función.</p>
+                <p>Cada llamada a esta función devuelve una <strong>aplicación</strong>. Una aplicación es un servidor HTTP que escucha en un determinado puerto.</p>
+            </section>
 
-                <section>
-                    <p>A continuación se definen los <strong>manejadores de ruta</strong>, que especifican las acciones del servidor para cada URL:</p>
-                    <p><code>app.get(<span style="font-style:italic">URL</span>, <span style="font-style:italic">callback</span>)</code></p>
-                    <p>Cuando se reciba una petición de tipo GET sobre la <code style="font-style:italic">URL</code> pasada como parámetro, se llamará a la función <code style="font-style:italic">callback</code>, que será la que gestione la petición.</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>A continuación se definen los <strong>manejadores de ruta</strong>, que especifican las acciones del servidor para cada URL:</p>
+                <p><code>app.get(<span style="font-style:italic">URL</span>, <span style="font-style:italic">callback</span>)</code></p>
+                <p>Cuando se reciba una petición de tipo GET sobre la <code style="font-style:italic">URL</code> pasada como parámetro, se llamará a la función <code style="font-style:italic">callback</code>, que será la que gestione la petición.</p>
+                <pre><code data-trim class="javascript">
 app.get("/", (request, response) => {
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "text/html");
-    response.write("Esta es la página raíz");
-    response.end();
+response.statusCode = 200;
+response.setHeader("Content-Type", "text/html");
+response.write("Esta es la página raíz");
+response.end();
 });
-                </code></pre>
-                </section>
+            </code></pre>
+            </section>
 
-                <section>
-                    <p>Los objetos <code>request</code> y <code>response</code> son del mismo tipo que los del módulo <code>http</code>, pero con algunos métodos más. <a href="http://expressjs.com/en/4x/api.html">[+]</a></p>
-                    <ul>
-                        <li><code>response.status(<span style="font-style:italic">codigo</span>)</code><br> Especifica el código HTTP de respuesta.
-                        </li>
-                        <li><code>response.type(<span style="font-style:italic">codigo</span>)</code><br> Especifica el tipo MIME del cuerpo de la respuesta.
-                        </li>
-                        <li><code>response.set(<span style="font-style:italic">clave</span>, <span style="font-style:italic">valor</span>)</code><br> Modifica las cabeceras de la respuesta.
-                        </li>
+            <section>
+                <p>Los objetos <code>request</code> y <code>response</code> son del mismo tipo que los del módulo <code>http</code>, pero con algunos métodos más. <a href="http://expressjs.com/en/4x/api.html">[+]</a></p>
+                <ul>
+                    <li><code>response.status(<span style="font-style:italic">codigo</span>)</code><br> Especifica el código HTTP de respuesta.
+                    </li>
+                    <li><code>response.type(<span style="font-style:italic">codigo</span>)</code><br> Especifica el tipo MIME del cuerpo de la respuesta.
+                    </li>
+                    <li><code>response.set(<span style="font-style:italic">clave</span>, <span style="font-style:italic">valor</span>)</code><br> Modifica las cabeceras de la respuesta.
+                    </li>
 
-                        <li><code>response.write(<span style="font-style:italic">cadena</span>)</code><br> Escribe en el cuerpo de la respuesta.
-                        </li>
-                        <li><code>response.end([cadena])</code><br> Envía señal de finalización de respuesta.
-                        </li>
-                    </ul>
-                </section>
+                    <li><code>response.write(<span style="font-style:italic">cadena</span>)</code><br> Escribe en el cuerpo de la respuesta.
+                    </li>
+                    <li><code>response.end([cadena])</code><br> Envía señal de finalización de respuesta.
+                    </li>
+                </ul>
+            </section>
 
-                <section>
-                    <p>La ruta anterior podía haberse escrito del siguiente modo:</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>La ruta anterior podía haberse escrito del siguiente modo:</p>
+                <pre><code data-trim class="javascript">
 app.get("/", function(request, response) {
-    response.status(200);
-    response.type("text/plain; charset=utf-8");
-    response.end("Esta es la página raíz");
+response.status(200);
+response.type("text/plain; charset=utf-8");
+response.end("Esta es la página raíz");
 });
-                </code></pre>
-                    <p>Es conveniente indicar el tipo MIME de la respuesta (<code>text/plain</code>), para que el navegador web sepa qué hacer con el fichero recibido. <!--<a href="01.html#/48">[+]</a>--></p>
+            </code></pre>
+                <p>Es conveniente indicar el tipo MIME de la respuesta (<code>text/plain</code>), para que el navegador web sepa qué hacer con el fichero recibido. <!--<a href="01.html#/48">[+]</a>--></p>
 
 
-                </section>
+            </section>
 
-                <section>
-                    <p>Añadimos otra ruta para gestionar la URL <code>/users.html</code>:</p>
-                    <pre><code data-trim class="javascript">
+            <section>
+                <p>Añadimos otra ruta para gestionar la URL <code>/users.html</code>:</p>
+                <pre><code data-trim class="javascript">
 app.get("/users.html", (request, response) => {
-    response.status(200);
-    response.type("text/plain; charset=utf-8");
-    response.end("Aquí se mostrará la página de usuarios");
+response.status(200);
+response.type("text/plain; charset=utf-8");
+response.end("Aquí se mostrará la página de usuarios");
 });                
-                </code></pre>
-                    <div class="fragment">
-                        <p>
-                            Por último, se llama al método <code>listen()</code>, que funciona igual que su homónimo en <code>http</code>:
-                        </p>
-                        <pre><code data-trim class="javascript">
+            </code></pre>
+                <div class="fragment">
+                    <p>
+                        Por último, se llama al método <code>listen()</code>, que funciona igual que su homónimo en <code>http</code>:
+                    </p>
+                    <pre><code data-trim class="javascript">
 app.listen(3000, (err) => {
-    if (err) {
-        console.error("No se pudo inicializar el servidor: "
-            + err.message);
-    } else {
-        console.log("Servidor arrancado en el puerto 3000");
-    }
+if (err) {
+    console.error("No se pudo inicializar el servidor: "
+        + err.message);
+} else {
+    console.log("Servidor arrancado en el puerto 3000");
+}
 });                
-                </code></pre>
-                    </div>
-                </section>
+            </code></pre>
+                </div>
+            </section>
 
+            <section>
                 <section>
                     <p>Resultado:</p>
                     <img src="../manu/images/05/EjemploRaiz.png" width="60%">
@@ -321,6 +318,9 @@ Content-Length: 24
                     <p><code>http://localhost:3000/users.html</code></p>
                     <img src="../manu/images/05/EjemploUsers.png" width="60%">
                 </section>
+            </section>
+
+            <section>
 
                 <section>
                     <p>Mediante la cabecera <code>Content-Disposition</code> podemos indicar al navegador que el contenido es para ser descargado, no para ser visualizado en navegador.</p>
@@ -336,6 +336,10 @@ app.get("/users.html", function(request, response) {
                 <section>
                     <img src="../manu/images/05/EjemploDownload.png" width="80%">
                 </section>
+                
+            </section>
+            <section>
+
 
                 <section>
                     <p>Existen funciones de más alto nivel para devolver un fichero al cliente:</p>

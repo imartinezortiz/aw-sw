@@ -553,7 +553,6 @@ const mensaje = format("Tienes %d años", 45);
                     <p>Se instalan dentro la propia carpeta del proyecto, en una subcarpeta llamada <code>node_modules</code>.</p>
                     <p>La información de la mayoría de ellos se encuentra en una base de datos pública: <em>NPM Registry</em>.</p>
                     <p>Se importan con <code>import</code> y, al igual que los módulos core, no se indica el path relativo.</p>
-                    <p class="fragment">Los paquetes &laquo;viejos&raquo; / que usan CommonJS requieren hay que importarlos <code>const modulo = await import(...);</code></p>
                 </section>
 
                 <section>
@@ -648,6 +647,76 @@ fib(6) = 8
 fact(6) = 720
                 </code></pre>
                 </section>
+                <section>
+                    <h3>Módulos tipo <code>CommonJS</code></h3>
+                    <p>Utilizamos la variable <code>module.exports</code> para exportar funciones / variables:</p>
+                    <pre><code data-trim data-noescape class="javascript">
+function fibAux(n) {
+    if (n === 0) {
+        return 0;
+    } else if (n === 1) {
+        return 1;
+    } else {
+        return fib(n-1) + fib(n-2);
+    }
+}
+
+function fib(n) {
+    console.assert(typeof(n) === "number", `${n} is not a number`);
+    return fibAux(n);
+}
+
+<span class="hl">module.exports = fib;</span>
+                </code></pre>
+                </section>
+                <section>
+                    <p>Suponemos que el código anterior está contenido en un fichero <code>moduloFib.js</code>.</p>
+                    <p>Ahora hacemos uso de la función <code>fib</code> desde otro fichero:</p>
+                    <pre><code data-trim data-noescape class="javascript">
+// testModules.js
+// --------------
+
+const fib = require("./moduloFib.js");
+
+console.log(fib(10));                
+                </code></pre>
+                    <div class="fragment">
+                        <p>Imprime:</p>
+                        <pre>55</pre>
+                    </div>
+                </section>
+
+                <section>
+                    <div style="background-color:#B0F0B0; padding:10px 10px 25px  15px">
+                        <p>La llamada a <code>require(<em>modulo</em>)</code>:</p>
+                        <ol>
+                            <li>Ejecuta el fichero <code><em>modulo</em></code> pasado como parámetro.</li>
+                            <li>Devuelve el objeto asignado a <code>module.exports</code> (en este caso, la función <code>fib</code>)</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section>
+                    <p>El objeto devuelto por <code>require</code> se guarda en una variable que no ha de coincidir necesariamente con el nombre de la función exportada.</p>
+                    <pre><code data-trim data-noescape class="javascript">
+const <span class="hl">myFib</span> = require("./moduloFib.js");
+
+console.log(<span class="hl">myFib</span>(10));                
+                </code></pre>
+                    <div class="fragment">
+                        <p>Esto es útil para prevenir conflictos de nombres entre los distintos módulos. Supongamos otro módulo <code>otroModuloFib.js</code> que también exporta una función <code>fib</code>:</p>
+                        <pre><code data-trim data-noescape class="javascript">
+const <span class="hl">myFib</span> = require("./moduloFib.js");
+const <span class="hl">otroFib</span> = require("./otroModuloFib.js");
+
+console.log(myFib(10));
+console.log(otroFib(10));
+                </code></pre>
+                    </div>
+
+                </section>
+            </section>
+
             </section>
 
 
@@ -662,7 +731,7 @@ fact(6) = 720
 
                 <section>
                     <h4>Ejemplo</h4>
-                    <img src="../manu/images/04/Depende.svg" style="width:80%;border:none;box-shadow:none">
+                    <img src="../manu/images/04/Depende.svg" style="width:70%;border:none;box-shadow:none">
                 </section>
             </section>
 
@@ -832,15 +901,15 @@ mimodulo@1.0.0
             </section>
 
             <section>
-                <section>
-                    <h3>Modelos síncrono vs asíncrono</h3>
-                    <p>
-                        Cuando ejecutamos una operación <strong>síncrona</strong>, la ejecución del programa <strong>se detiene</strong> hasta que dicha operación haya terminado.
-                    </p>
-                    <p>Ej: Lectura de fichero síncrona</p>
-                    <img src="../manu/images/04/Sincrona.svg" width="80%" style="border:none;box-shadow:none">
-                </section>
+                <h3>Modelos síncrono vs asíncrono</h3>
+                <p>
+                    Cuando ejecutamos una operación <strong>síncrona</strong>, la ejecución del programa <strong>se detiene</strong> hasta que dicha operación haya terminado.
+                </p>
+                <p>Ej: Lectura de fichero síncrona</p>
+                <img src="../manu/images/04/Sincrona.svg" width="80%" style="border:none;box-shadow:none">
             </section>
+
+
             <section>
                 <section>
                     <p>
@@ -849,7 +918,7 @@ mimodulo@1.0.0
                     <p>Ej: Lectura de fichero asíncrona</p>
                     <img src="../manu/images/04/Asincrona.svg" width="80%" style="border:none;box-shadow:none">
                 </section>
-
+    
                 <section>
                     <h4>&laquo;concurrente&raquo;</h4>
                     <p>En realidad, en Node solo hay un hilo en ejecución.</p>
@@ -860,14 +929,15 @@ mimodulo@1.0.0
             </section>
 
             <section>
-                <section>
-                    <h3>Un ejemplo: lectura de fichero</h3>
-                    <p>El módulo core <code>fs</code> proporciona operaciones para manejar ficheros. Dentro de este módulo hay dos funciones para leer el contenido de un fichero:</p>
-                    <ul>
-                        <li><code>readFileSync(fichero, opcs)</code><br> Lectura síncrona.</li>
-                        <li><code>readFile(fichero, opcs, callback)</code><br> Lectura asíncrona.</li>
-                    </ul>
-                </section>
+                <h3>Un ejemplo: lectura de fichero</h3>
+                <p>El módulo core <code>fs</code> proporciona operaciones para manejar ficheros. Dentro de este módulo hay dos funciones para leer el contenido de un fichero:</p>
+                <ul>
+                    <li><code>readFileSync(fichero, opcs)</code><br> Lectura síncrona.</li>
+                    <li><code>readFile(fichero, opcs, callback)</code><br> Lectura asíncrona.</li>
+                </ul>
+            </section>
+
+            <section>
 
                 <section>
                     <h4>Lectura síncrona</h4>
@@ -896,41 +966,45 @@ try {
                     </div>
                 </section>
 
-                <section>
-                    <h4>Lectura asíncrona</h4>
-                    <img src="../manu/images/04/Asincrona.svg" width="80%" style="border:none;box-shadow:none">
-                    <p>Si la operación de lectura asíncrona se realiza de manera ajena al hilo de ejecución principal del programa, ¿cómo sabemos cuándo ha finalizado?
-                    </p>
-                    <ul>
-                        <li class="fragment">Mediante el uso de funciones <strong>callback</strong>.<span class="fragment"> Modelo antiguo</span></li>
-                        <li class="fragment">Mediante <code>Promise</code>s (promesas)</li>
-                        <li class="fragment">Usando <code>async / await</code>. Mejora el uso del mecanismo de promesas.</li>
-                    </ul>
-                </section>
+            </section>
 
-                <section>
-                    <h4>Funciones callback</h4>
-                    <p style="background: #AFA; padding:20px 2px 20px 20px">Una función <strong>callback</strong> es una función definida por el programador, pero que no está pensada para ser llamada directamente por este, sino por otro componente del sistema.</p>
-                </section>
 
-                <section>
-                    <h4>Funciones callback: <code>readFile</code></h4>
-                    <p>La función asíncrona <code>readFile</code> (módulo <code>fs</code>), además de recibir el nombre del fichero y las opciones de lectura, recibe un tercer parámetro, que es una función.</p>
-                    <p>Esta función es definida por el programador, pero será llamada por <code>readFile</code> cuando la lectura del fichero haya finalizado.</p>
-                    <p>Es, por tanto, una función callback.</p>
-                </section>
+            <section>
+                <h4>Lectura asíncrona</h4>
+                <img src="../manu/images/04/Asincrona.svg" width="80%" style="border:none;box-shadow:none">
+                <p>Si la operación de lectura asíncrona se realiza de manera ajena al hilo de ejecución principal del programa, ¿cómo sabemos cuándo ha finalizado?
+                </p>
+                <ul>
+                    <li class="fragment">Mediante el uso de funciones <strong>callback</strong>.<span class="fragment"> Modelo antiguo</span></li>
+                    <li class="fragment">Mediante <code>Promise</code>s (promesas)</li>
+                    <li class="fragment">Usando <code>async / await</code>. Mejora el uso del mecanismo de promesas.</li>
+                </ul>
+            </section>
 
-                <section>
-                    <p>A su vez, la función callback recibe dos parámetros:</p>
-                    <ul>
-                        <li>Un objeto de la clase <code>Error</code>, en el caso en que la lectura haya fallado.<br>
-                            <span style="font-size:70%">Si no ha fallado, toma el valor <code>null</code>.</span>
-                        </li>
-                        <li>El contenido del fichero leído, en el caso en que se haya leído correctamente.<br>
-                            <span style="font-size:70%">Si ha fallado, toma el valor <code>undefined</code>.</span></li>
-                    </ul>
-                </section>
+            <section>
+                <h4>Funciones callback</h4>
+                <p style="background: #AFA; padding:20px 2px 20px 20px">Una función <strong>callback</strong> es una función definida por el programador, pero que no está pensada para ser llamada directamente por este, sino por otro componente del sistema.</p>
+            </section>
 
+            <section>
+                <h4>Funciones callback: <code>readFile</code></h4>
+                <p>La función asíncrona <code>readFile</code> (módulo <code>fs</code>), además de recibir el nombre del fichero y las opciones de lectura, recibe un tercer parámetro, que es una función.</p>
+                <p>Esta función es definida por el programador, pero será llamada por <code>readFile</code> cuando la lectura del fichero haya finalizado.</p>
+                <p>Es, por tanto, una función callback.</p>
+            </section>
+
+            <section>
+                <p>A su vez, la función callback recibe dos parámetros:</p>
+                <ul>
+                    <li>Un objeto de la clase <code>Error</code>, en el caso en que la lectura haya fallado.<br>
+                        <span style="font-size:70%">Si no ha fallado, toma el valor <code>null</code>.</span>
+                    </li>
+                    <li>El contenido del fichero leído, en el caso en que se haya leído correctamente.<br>
+                        <span style="font-size:70%">Si ha fallado, toma el valor <code>undefined</code>.</span></li>
+                </ul>
+            </section>
+
+            <section>
                 <section>
                     <pre><code data-trim data-noescape class="javascript">
 import { readFile } from "node:fs";
@@ -957,34 +1031,33 @@ function <span class="hl">ficheroLeido</span>(err, contenido) {
 import { readFile } from "node:fs";
 
 readFile("FichTexto.txt", { encoding: "utf-8" }, (err, contenido) => {
-    if (err) {
-        console.log("Se ha producido un error:");
-        console.log(err.message);
-    } else {
-        console.log("Fichero leído correctamente:");
-        console.log(contenido);
-    }        
+if (err) {
+    console.log("Se ha producido un error:");
+    console.log(err.message);
+} else {
+    console.log("Fichero leído correctamente:");
+    console.log(contenido);
+}        
 });                
                 </code></pre>
                 </section>
-
-                <section>
-                    <p>Las operaciones de lectura asíncrona:</p>
-                    <div style="background:#EDF; padding:20px 2px 20px 20px">
-                        <ul>
-                            <li><strong>No bloquean</strong> la ejecución del programa.<br>
-                                <span style="font-size:60%">Porque se ejecutan de manera concurrente.</span>
-                            </li>
-                            <li><strong>No devuelven</strong> ningún valor.<br>
-                                <span style="font-size:60%">El resultado de la lectura se pasa como parámetro a la función <em>callback</em>.</span>
-                            </li>
-                            <li><strong>No</strong> lanzan <strong>excepciones</strong>.<br>
-                                <span style="font-size:60%">En caso de error, es la función <em>callback</em> quien recibe la excepción como primer parámetro.</span></li>
-                        </ul>
-                    </div>
-                </section>
             </section>
 
+            <section>
+                <p>Las operaciones de lectura asíncrona:</p>
+                <div style="background:#EDF; padding:20px 2px 20px 20px">
+                    <ul>
+                        <li><strong>No bloquean</strong> la ejecución del programa.<br>
+                            <span style="font-size:60%">Porque se ejecutan de manera concurrente.</span>
+                        </li>
+                        <li><strong>No devuelven</strong> ningún valor.<br>
+                            <span style="font-size:60%">El resultado de la lectura se pasa como parámetro a la función <em>callback</em>.</span>
+                        </li>
+                        <li><strong>No</strong> lanzan <strong>excepciones</strong>.<br>
+                            <span style="font-size:60%">En caso de error, es la función <em>callback</em> quien recibe la excepción como primer parámetro.</span></li>
+                    </ul>
+                </div>
+            </section>
 
             <section>
                 <section>
