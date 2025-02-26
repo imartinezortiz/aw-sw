@@ -321,7 +321,6 @@ Content-Length: 24
             </section>
 
             <section>
-
                 <section>
                     <p>Mediante la cabecera <code>Content-Disposition</code> podemos indicar al navegador que el contenido es para ser descargado, no para ser visualizado en navegador.</p>
                     <pre><code data-trim class="javascript">
@@ -336,30 +335,26 @@ app.get("/users.html", function(request, response) {
                 <section>
                     <img src="../manu/images/05/EjemploDownload.png" width="80%">
                 </section>
-                
             </section>
+
             <section>
-
-
-                <section>
-                    <p>Existen funciones de más alto nivel para devolver un fichero al cliente:</p>
-                    <ul>
-                        <li><code>response.sendFile(path)</code>
-                            <br>Devuelve al cliente el fichero indicado.
-                        </li>
-                        <li><code>response.download(path)</code>
-                            <br>Devuelve al cliente el fichero indicado, utilizando la cabecera <code>Content-Disposition: attachment</code>.
-                        </li>
-                    </ul>
-                    <pre><code data-trim class="javascript">
+                <p>Existen funciones de más alto nivel para devolver un fichero al cliente:</p>
+                <ul>
+                    <li><code>response.sendFile(path)</code>
+                        <br>Devuelve al cliente el fichero indicado.
+                    </li>
+                    <li><code>response.download(path)</code>
+                        <br>Devuelve al cliente el fichero indicado, utilizando la cabecera <code>Content-Disposition: attachment</code>.
+                    </li>
+                </ul>
+                <pre><code data-trim class="javascript">
 app.get("/usuario/imagen.png", function(request, response) {
-    response.status(200);
-    response.sendFile("./path/fichero.png");
+response.status(200);
+response.sendFile("./path/fichero.png");
 });
-                </code></pre>
-                    <p>Estas funciones detectan el tipo MIME del fichero enviado.</p>
+            </code></pre>
+                <p>Estas funciones detectan el tipo MIME del fichero enviado.</p>
 
-                </section>
             </section>
 
             <section>
@@ -475,31 +470,28 @@ app.get("/", (request, response) => {
                     <p style="font-style:italic">(ver apartado 4: Middleware)</p>
 
                 </section>
+            </section>
 
-
-                <section>
-                    <p>Las páginas <strong>dinámicas</strong> sí dependen de la petición realizada o de otros recursos (p.ej. variables de programa o BD).</p>
-                    <p>Por ello han de ser generadas total o parcialmente mediante código Javascript.</p>
-                    <pre><code data-trim data-noescape class="javascript">
+            <section>
+                <p>Las páginas <strong>dinámicas</strong> sí dependen de la petición realizada o de otros recursos (p.ej. variables de programa o BD).</p>
+                <p>Por ello han de ser generadas total o parcialmente mediante código Javascript.</p>
+                <pre><code data-trim data-noescape class="javascript">
 let usuarios = ...;
 
 app.get("/users.html", (request, response) => {
-    // ...
-    usuarios.forEach((usuario) => {
-        response.write(`&lt;li&gt;${usuario}&lt;/li&gt;`);
-    });
-    // ...
+// ...
+usuarios.forEach((usuario) => {
+    response.write(`&lt;li&gt;${usuario}&lt;/li&gt;`);
+});
+// ...
 });
 
 </code></pre>
-                </section>
-                <section>
-                    <p>Aun así, las páginas generadas dinámicamente tienen muchas partes que son estáticas:<code>&lt;head&gt;</code>, encabezados, pies de página, referencias a hojas de estilo, etc.</p>
-                    <p>Por ello, tampoco suele utilizarse <code>response.write()</code> directamente para generar páginas dinámicas.</p>
-                    <p class="fragment">Existe una alternativa mejor: <strong> plantillas</strong>.</p>
-                </section>
-
-
+            </section>
+            <section>
+                <p>Aun así, las páginas generadas dinámicamente tienen muchas partes que son estáticas:<code>&lt;head&gt;</code>, encabezados, pies de página, referencias a hojas de estilo, etc.</p>
+                <p>Por ello, tampoco suele utilizarse <code>response.write()</code> directamente para generar páginas dinámicas.</p>
+                <p class="fragment">Existe una alternativa mejor: <strong> plantillas</strong>.</p>
             </section>
 
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="zoom" id="p1-5">
@@ -546,83 +538,79 @@ app.get("/users.html", (request, response) => {
             </section>
 
             <section>
-                <section>
-                    <h3>EJS</h3>
-                    <p>Es un paquete externo que se instala mediante <code>npm</code>: </p>
-                    <pre><code data-trim class="no-highlight">
+                <h3>EJS</h3>
+                <p>Es un paquete externo que se instala mediante <code>npm</code>: </p>
+                <pre><code data-trim class="no-highlight">
 npm install ejs        
-                </code></pre>
-                    <p>Las plantillas de EJS son documentos HTML con marcadores especiales de varios tipos:</p>
-                    <ul>
-                        <li>Marcadores de <strong>programa</strong>, delimitados por <code>&lt;%</code> y <code>%&gt;</code></li>
-                        <li>Marcadores de <strong>expresión</strong>, delimitados por <code>&lt;%=</code> y <code>%&gt;</code></li>
-                    </ul>
-                </section>
-
-                <section>
-                    <p>Los marcadores de expresión evalúan la expresión Javascript dada, la convierten en cadena, y se reemplazan por dicha cadena.</p>
-                    <pre><code data-trim data-noescape class="html">
+            </code></pre>
+                <p>Las plantillas de EJS son documentos HTML con marcadores especiales de varios tipos:</p>
+                <ul>
+                    <li>Marcadores de <strong>programa</strong>, delimitados por <code>&lt;%</code> y <code>%&gt;</code></li>
+                    <li>Marcadores de <strong>expresión</strong>, delimitados por <code>&lt;%=</code> y <code>%&gt;</code></li>
+                </ul>
+            </section>
+            <section>
+                <p>Los marcadores de expresión evalúan la expresión Javascript dada, la convierten en cadena, y se reemplazan por dicha cadena.</p>
+                <pre><code data-trim data-noescape class="html">
 &lt;h1&gt;¡Bienvenido, <span class="hl">&lt;%= usuario.nombre %&gt;</span>!&lt;/h1&gt;
-                </code></pre>
+            </code></pre>
 
-                    <div class="fragment">
-                        <p>Los marcadores de programa contienen sentencias (o fragmentos de sentencias) Javascript. Suelen utilizarse con bucles, condicionales, etc.</p>
+                <div class="fragment">
+                    <p>Los marcadores de programa contienen sentencias (o fragmentos de sentencias) Javascript. Suelen utilizarse con bucles, condicionales, etc.</p>
 
-                        <pre><code data-trim data-noescape class="html">
+                    <pre><code data-trim data-noescape class="html">
 <span class="hl">&lt;% if (!usuario.nombre) { %&gt;</span>
-   &lt;p&gt;No est&aacute;s identificado.&lt;/p&gt;
+&lt;p&gt;No est&aacute;s identificado.&lt;/p&gt;
 <span class="hl">&lt;% } else { %&gt;</span>
-   &lt;p&gt;&iexcl;Bienvenido, <span class="hl">&lt;%= usuario.nombre %&gt;</span>!&lt;/p&gt;
+&lt;p&gt;&iexcl;Bienvenido, <span class="hl">&lt;%= usuario.nombre %&gt;</span>!&lt;/p&gt;
 <span class="hl">&lt;% } %&gt;</span>
-                </code></pre>
-                    </div>
+            </code></pre>
+                </div>
 
-                </section>
+            </section>
 
-                <section>
-                    <p>Volviendo a nuestro ejemplo:</p>
-                    <pre><code data-trim class="javascript" style="font-size:90%;line-height:120%">
+            <section>
+                <p>Volviendo a nuestro ejemplo:</p>
+                <pre><code data-trim class="javascript" style="font-size:90%;line-height:120%">
 const usuarios = ["Javier Montoro", "Dolores Vega", "Beatriz Nito"];
 
 app.get("/users.html", (request, response) => {
-    response.status(200);
-    response.type("text/html");
-    response.write("&lt;html&gt;");
-    response.write("&lt;head&gt;");
-    response.write("&lt;title>Lista de usuarios&lt;/title&gt;");
-    response.write('&lt;meta charset="utf-8"&gt;')
-    response.write("&lt;/head&gt;");
-    response.write("&lt;body&gt;&lt;ul&gt;");
-    usuarios.forEach((usuario) => {
-        response.write(`&lt;li&gt;${usuario}&lt;/li&gt;`);
-    });
-    response.write("&lt;/ul&gt;&lt;/body&gt;");
-    response.end("&lt;/html&gt;");
+response.status(200);
+response.type("text/html");
+response.write("&lt;html&gt;");
+response.write("&lt;head&gt;");
+response.write("&lt;title>Lista de usuarios&lt;/title&gt;");
+response.write('&lt;meta charset="utf-8"&gt;')
+response.write("&lt;/head&gt;");
+response.write("&lt;body&gt;&lt;ul&gt;");
+usuarios.forEach((usuario) => {
+    response.write(`&lt;li&gt;${usuario}&lt;/li&gt;`);
+});
+response.write("&lt;/ul&gt;&lt;/body&gt;");
+response.end("&lt;/html&gt;");
 });                
-                </code></pre>
-                </section>
-
-                <section>
-                    <p>Creamos un fichero <code>views/users.ejs</code>:</p>
-                    <pre><code data-trim data-noescape class="html">
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt;Lista de usuarios&lt;/title&gt;
-        &lt;meta charset=&quot;utf-8&quot;&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;ul&gt;
-            <span class="hl">&lt;% users.forEach(user => { %&gt;</span>
-            &lt;li&gt;<span class="hl">&lt;%= user %&gt;</span>&lt;/li&gt;
-            <span class="hl">&lt;% }); %&gt;</span>
-        &lt;/ul&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-                </code></pre>
-                </section>
+            </code></pre>
             </section>
 
+            <section>
+                <p>Creamos un fichero <code>views/users.ejs</code>:</p>
+                <pre><code data-trim data-noescape class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Lista de usuarios&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;ul&gt;
+        <span class="hl">&lt;% users.forEach(user => { %&gt;</span>
+        &lt;li&gt;<span class="hl">&lt;%= user %&gt;</span>&lt;/li&gt;
+        <span class="hl">&lt;% }); %&gt;</span>
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+            </code></pre>
+            </section>
 
             <section>
                 <section>
@@ -659,28 +647,26 @@ app.set("views", join(import.meta.dirname, "views"));
                     </div>
                 </section>
 
-
-
-                <section>
-                    <p>La llamada <code>response.render()</code> se encarga de llamar al motor de plantillas y devolver el resultado al cliente. </p>
-                    <p>Recibe dos parámetros:</p>
-                    <ul>
-                        <li>Una cadena con el nombre de la vista. Buscará el fichero correspondiente en la carpeta de plantillas.</li>
-                        <li>El modelo a visualizar. Los &laquo;huecos&raquo; de la plantilla se rellenan con los atributos del modelo.</li>
-                    </ul>
-                    <pre><code data-trim data-noescape class="javascript">
+            </section>
+            <section>
+                <p>La llamada <code>response.render()</code> se encarga de llamar al motor de plantillas y devolver el resultado al cliente. </p>
+                <p>Recibe dos parámetros:</p>
+                <ul>
+                    <li>Una cadena con el nombre de la vista. Buscará el fichero correspondiente en la carpeta de plantillas.</li>
+                    <li>El modelo a visualizar. Los &laquo;huecos&raquo; de la plantilla se rellenan con los atributos del modelo.</li>
+                </ul>
+                <pre><code data-trim data-noescape class="javascript">
 const usuarios = ["Javier Montoro", "Dolores Vega", "Beatriz Nito"];
-                
+            
 app.get("/users.html", function(request, response) {
-    response.status(200);
-    <span class="hl">response.render("users", { users: usuarios });</span>
-    // Busca la plantilla "views/users.ejs"
-    // La variable 'users' que hay dentro de esta plantilla tomará
-    // el valor del array usuarios.
+response.status(200);
+<span class="hl">response.render("users", { users: usuarios });</span>
+// Busca la plantilla "views/users.ejs"
+// La variable 'users' que hay dentro de esta plantilla tomará
+// el valor del array usuarios.
 });
-                
-                </code></pre>
-                </section>
+            
+            </code></pre>
             </section>
 
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="zoom" id="p3">
