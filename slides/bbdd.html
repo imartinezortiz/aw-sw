@@ -310,22 +310,33 @@ console.log(resultado);
             <section>
                 <h2>Consultas SELECT</h2>
                 <p>Devuelve el primer resultado (si lo hay) resultado de una consulta (e.g. <code>SELECT</code>).<span class="fragment"> Si no hay resultado devuelve <code>undefined</code></span></p>
-                <p><code>get</code> / <code>all</code> recibe los parámetros los parámetros de la consulta</p>
-                <p><code>iterate</code> es como <code>all</code> pero devuelve iterador en vez de un array con todos los resultados</p>
+                <p><code>get</code> recibe los parámetros los parámetros de la consulta</p>
                 <pre><code data-trim data-noescape class="javascript">
 const stmt = db.prepare('SELECT nombre, apellidos FROM Contactos');
 const primerResultado = stmt.get();
 console.log(primerResultado); // { nombre: 'Joey', apellidos: 'Salnieri', ...}
 
-const todos = stmt.all();
-console.log(todos);
-// [{ nombre: 'Joey', apellidos: 'Salnieri', ...},
-//  { nombre: 'Sally', apellidos: 'Luciano', ...}, ...]
-
 const buscaPorApellidos = db.prepare('SELECT nombre FROM Contactos WHERE apellido LIKE ?');
 const resultado = buscaPorApellidos.get('Kennedy');
 console.log(resultado); // undefined
 
+    </code></pre>
+            </section>
+
+            <section>
+                <p><code>all</code> / <code>iterate</code> es como <code>all</code> pero devuelve iterador en vez de un array con todos los resultados</p>
+                <pre><code data-trim data-noescape class="javascript">
+const buscaPorApellidos = db.prepare('SELECT nombre FROM Contactos WHERE apellido LIKE ?');
+
+const todos = buscaPorApellidos.all('Salinieri');
+console.log(todos);
+// [{ nombre: 'Joey', apellidos: 'Salnieri', ...}]
+
+const it = buscaPorApellidos.iterate('Salnieri');
+for(const mafioso of it) {
+    console.log(mafioso);
+}
+// { nombre: 'Joey', apellidos: 'Salnieri', ...}
     </code></pre>
             </section>
 
@@ -359,6 +370,67 @@ console.log(resultado); // undefined
                         <td><code><a href="https://nodejs.org/api/buffer.html#buffer_class_buffer">Buffer</a></code></td>
                     </tr>
                 </table>
+            </section>
+
+            <section>
+                <h2>Inserciones, borrados y actualizaciones</h2>
+                <p><code>run</code> recibe los parámetros de la operación SQL y devuelve un resultado con los cambios.</p>
+                <p>Atributos del objeto resultado:</p>
+                <ul>
+                    <li><code>changes</code>: número total afectadas por la operación.</li>
+                    <li><code>lastInsertRowid</code>: el <code>rowid</code> de la última fila insertada.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Transacciones</h2>
+                <p><code>transaction</code> recibe una función que se ejecutará dentro de la transacción</p>
+                <p>La función puede recibir los parámetros para realizar las operaciones.</p>
+                <p>El resultado de la función es devuelto por la transacción.</p>
+                <pre><code data-trim data-noescape class="javascript">
+const insertStmt = db.prepare('INSERT INTO Contactos (nombre, apellidos, fechaNac) VALUES (@nombre, @apellidos, @fechaNac)');
+
+const insertMany = db.transaction((mafiosos) => {
+    const ids = [];
+    for (const mafioso of mafiosos) {
+        ids.push(insertStmt.run(mafioso).lastInsertRowid);
+    }
+    return ids;
+});
+
+const ids = insertMany([
+  { nombre: 'Joey', apellidos: 'Salnieri', fechaNac: DateTime.fromISO("1954-05-15").toISODate() },
+  { nombre: 'Sally', apellidos: 'Luciano', fechaNac: DateTime.fromISO("1961-06-29").toISODate() },
+  { nombre: 'Junior', apellidos: 'Soprano', fechaNac: DateTime.fromISO("1937-02-01").toISODate() },
+]);
+                    </code></pre>
+            </section>
+
+            <section>
+                <p>Es posible utilizar alguno de los <a href="https://www.sqlite.org/lang_transaction.html">subtipos de transacciones</a> de SQLite: <code>DEFERRED</code>, <code>IMMEDIATE</code></p>
+                <pre><code data-trim class="javascript">
+insertMany(mafiosos); // uses "BEGIN"
+insertMany.deferred(mafiosos); // uses "BEGIN DEFERRED"
+insertMany.immediate(mafiosos); // uses "BEGIN IMMEDIATE"
+insertMany.exclusive(mafiosos); // uses "BEGIN EXCLUSIVE"
+                </code></pre>
+            </section>
+
+            <section>
+                <p>Se pueden mezclar operaciones</p>
+                <pre><code data-trim class="javascript">
+const decrementaSaldoStmt = db.prepare('UPDATE Cuenta SET saldo -= ? WHERE cuenta = ? AND saldo >= ?');
+const incrementaSaldoStmt = db.prepare('UPDATE Cuenta SET saldo += ? WHERE cuenta = ?');
+
+const transferencia = db.transaction((origen, destino, cantidad) => {
+    const decrementaResult = decrementaSaldoStmt.run(cantidad, origen, cantidad);
+    if (decrementaResult.changes !== 1) return false;
+
+    const incrementaResult = incrementaSaldoStmt.run(cantidad, destino);
+    return incrementaResult.changes === 1;
+});
+                </code></pre>
+                <p><strong>Nota:</strong> es recomendable minimizar la lógica que se ejecuta dentro de la función de la transacción.</p>
             </section>
 
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p3">

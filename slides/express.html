@@ -256,9 +256,9 @@ response.end();
                 <p>La ruta anterior podía haberse escrito del siguiente modo:</p>
                 <pre><code data-trim class="javascript">
 app.get("/", function(request, response) {
-response.status(200);
-response.type("text/plain; charset=utf-8");
-response.end("Esta es la página raíz");
+    response.status(200);
+    response.type("text/plain; charset=utf-8");
+    response.end("Esta es la página raíz");
 });
             </code></pre>
                 <p>Es conveniente indicar el tipo MIME de la respuesta (<code>text/plain</code>), para que el navegador web sepa qué hacer con el fichero recibido. <!--<a href="01.html#/48">[+]</a>--></p>
@@ -270,9 +270,9 @@ response.end("Esta es la página raíz");
                 <p>Añadimos otra ruta para gestionar la URL <code>/users.html</code>:</p>
                 <pre><code data-trim class="javascript">
 app.get("/users.html", (request, response) => {
-response.status(200);
-response.type("text/plain; charset=utf-8");
-response.end("Aquí se mostrará la página de usuarios");
+    response.status(200);
+    response.type("text/plain; charset=utf-8");
+    response.end("Aquí se mostrará la página de usuarios");
 });                
             </code></pre>
                 <div class="fragment">
@@ -281,12 +281,12 @@ response.end("Aquí se mostrará la página de usuarios");
                     </p>
                     <pre><code data-trim class="javascript">
 app.listen(3000, (err) => {
-if (err) {
-    console.error("No se pudo inicializar el servidor: "
-        + err.message);
-} else {
-    console.log("Servidor arrancado en el puerto 3000");
-}
+    if (err) {
+        console.error("No se pudo inicializar el servidor: "
+            + err.message);
+    } else {
+        console.log("Servidor arrancado en el puerto 3000");
+    }
 });                
             </code></pre>
                 </div>
