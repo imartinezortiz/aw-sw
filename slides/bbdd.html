@@ -433,6 +433,25 @@ const transferencia = db.transaction((origen, destino, cantidad) => {
                 <p><strong>Nota:</strong> es recomendable minimizar la lógica que se ejecuta dentro de la función de la transacción.</p>
             </section>
 
+            <section>
+                <h2>Cerrando la conexión al salir</h2>
+                <p>Para cerrar de manera controlada una bbdd <code>SQLite</code> es necesario cerrarla con <code>close</code> antes de terminar
+                la aplicación.</p>
+                <pre><code data-trim class="javascript">
+// db.js
+export function closeConnection(db = getConnection()) {
+    if (db === null) return;
+    db.close();
+}
+
+// server.js
+process.on('exit', (code) => {
+    closeConnection();
+    // ...
+});
+                </code></pre>
+            </section>
+
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p3">
                 <ol class="contenidos" style="width:13em">
                     <li><a href="#/p1" class="outline">Introducción</a></li>
