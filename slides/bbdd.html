@@ -167,6 +167,7 @@ npm install better-sqlite3
             <section>
                 <h2>Inicializar la BD</h2>
                 <pre><code data-trim class="javascript">
+// Fichero db.js
 import { join, dirname } from "node:path";
 import Database from 'better-sqlite3';
 
@@ -185,12 +186,9 @@ function createConnection() {
             <section>
                 <h2>Inicializar la BD</h2>
                 <pre><code data-trim class="javascript">
-// Fichero: db.js
-
+// Fichero db.js
 let db = null;
-
 // [...]
-
 export function getConnection() {
     if (db !== null) return db;
     db = createConnection();
@@ -388,7 +386,8 @@ for(const mafioso of it) {
                 <p>La función puede recibir los parámetros para realizar las operaciones.</p>
                 <p>El resultado de la función es devuelto por la transacción.</p>
                 <pre><code data-trim data-noescape class="javascript">
-const insertStmt = db.prepare('INSERT INTO Contactos (nombre, apellidos, fechaNac) VALUES (@nombre, @apellidos, @fechaNac)');
+const insertStmt = db.prepare('INSERT INTO Contactos (nombre, apellidos, fechaNac) '
+   +'VALUES (@nombre, @apellidos, @fechaNac)');
 
 const insertMany = db.transaction((mafiosos) => {
     const ids = [];
@@ -412,7 +411,6 @@ const ids = insertMany([
 insertMany(mafiosos); // uses "BEGIN"
 insertMany.deferred(mafiosos); // uses "BEGIN DEFERRED"
 insertMany.immediate(mafiosos); // uses "BEGIN IMMEDIATE"
-insertMany.exclusive(mafiosos); // uses "BEGIN EXCLUSIVE"
                 </code></pre>
             </section>
 

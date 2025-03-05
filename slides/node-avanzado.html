@@ -1,0 +1,1069 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tema 6 - Aspectos avanzados de programación del servidor</title>
+
+
+    <link rel="stylesheet" href="../revealjs/manu.css">
+
+    <link rel="stylesheet" href="../manu/css/traspas.css" />
+
+</head>
+
+<body>
+    <svg width="0" height="0" style="float:left">
+        <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" markerUnits="strokeWidth" style="display:float">
+                <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+            </marker>
+        </defs>
+    </svg>
+    <div class="reveal">
+        <div class="slides">
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade">
+                <div class="headerlesson">Tema 3.5</div>
+                <h1 style="height:4em;position:relative;top:0.3em">Programación en el servidor:<br> aspectos avanzados</h1>
+                <div class="headerlesson">
+                    Sistemas Web / Aplicaciones Web
+                </div>
+                <div class="author">
+                    <a href="mailto:montenegro@fdi.ucm.es" style="color:white"><span class="myname">Manuel Montenegro</span></a>
+                    <br/> DSIC
+                    <br/> Facultad de Informática
+                    <br/> Universidad Complutense de Madrid
+                </div>
+                <div class="author">
+                    <a href="mailto:imartinez@fdi.ucm.es" style="color:white"><span class="myname">Iván Martínez</span></a>
+                    <br/> DSIA
+                    <br/> Facultad de Informática
+                    <br/> Universidad Complutense de Madrid
+                </div>
+                <div class="cc">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
+                    <br/> Esta obra está bajo una
+                    <br/><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="color:white">Licencia CC BY-NC-SA 4.0 Internacional</a>.
+                </div>
+                <div style="clear:left;font-size:15px"></div>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p6">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p6" class="outline fragment highlight-orange">Subida de ficheros</a></li>
+                    <li><a href="#/p7" class="outline">Binarios y bases de datos</a></li>
+                    <li><a href="#/p8" class="outline">Validación de formularios</a></li>
+                    <li><a href="#/p1" class="outline">¿Por qué un modelo asíncrono?</a></li>
+                    <li><a href="#/p9" class="outline">Bibliografía</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Subida de ficheros</h2>
+                <ul>
+                    <li>Codificación de formularios.</li>
+                    <li>El middleware <code>multer</code>.</li>
+                    <li>Adjuntar ficheros a un formulario.</li>
+                </ul>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Codificación de formularios</h3>
+                    <img src="../manu/images/06/FormMultipart.png" width="60%">
+                    <pre><code data-trim class="html">
+&lt;form method=&quot;POST&quot; action=&quot;procesar_formulario.html&quot;&gt;
+    ...
+    &lt;input type=&quot;text&quot; name=&quot;nombre&quot;&gt;
+    ...
+    &lt;input type=&quot;text&quot; name=&quot;apellidos&quot; style=&quot;width:30em&quot;&gt;
+    ...
+    &lt;input type=&quot;checkbox&quot; name=&quot;fumador&quot; value=&quot;si&quot;&gt;
+    ...
+    &lt;input type=&quot;submit&quot; value=&quot;Enviar&quot;&gt;
+&lt;/form&gt;                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Al hacer clic en el botón <em>Enviar</em> se adjunta la información del formulario dentro del cuerpo de la petición POST:</p>
+                    <pre><code data-trim data-noescape class="no-highlight">
+POST http://localhost:3000/procesar_formulario.html HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:50.0) 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*
+Accept-Language: en-US,en;q=0.7,de;q=0.3
+Accept-Encoding: gzip, deflate
+Referer: http://localhost:3000/
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+<div style="background-color:#DDF;padding:10px 5px">Content-Type: <span class="hl" style="background-color:#DFD">application/x-www-form-urlencoded</span>   <span class="arrow_box_left caja_codigo fragment">Codificación</span>
+Content-Length: 49
+
+<span class="hl" style="background-color:#FFE">nombre=Elena&amp;apellidos=Paredes+Torrado&amp;fumador=si</span>    <span class="arrow_box_left caja_codigo fragment">Contenido</span></div>
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Por defecto, los datos del formulario se envían con la codificación <code>application/x-www-form-urlencoded</code>, en la que los datos del formulario aparecen exactamente de la misma manera en la que aparecerían en la URL de una petición GET.</p>
+                    <p>El middleware <code>express.urlencoded</code> o <code>body-parser</code> pueden extraer los datos de un formulario con esta codificación:</p>
+                    <pre><code data-trim class="javascript">
+app.use(express.urlencoded({ extended: false }));
+
+import bodyParser from 'body-parser';
+app.user(bodyParser.urlencoded({ extended: false, limit: '1mb'}));
+                </code></pre>
+                    <p>Este middleware descodifica la información del formulario y la guarda en <code>request.body</code>.</p>
+                </section>
+            </section>
+
+            <section>
+                <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", (request, response) => {
+response.render("datos_formulario", {
+    nombre: <span class="hl">request.body.nombre</span>,
+    apellidos: <span class="hl">request.body.apellidos</span>,
+    fumador: <span class="hl">request.body.fumador</span> === "si"
+});
+});
+            
+            </code></pre>
+                <img src="../manu/images/06/FormularioDatos.png" width="50%">
+            </section>
+
+            <section>
+                <p>La codificación mediante URL de los datos de un formulario es bastante limitada si el formulario permite introducir grandes cantidades de texto o adjuntar ficheros en formato binario (p.ej. imágenes).</p>
+                <p>Existe otro tipo de codificación más adecuada para formularios complejos: <code>multipart/form-data</code>.</p>
+                <p>La codificación con la que el cliente envía los datos del formulario se indica en la etiqueta <code>&lt;form&gt;</code>:</p>
+                <pre><code data-trim data-noescape class="html">
+&lt;form method="POST" action="procesar_formulario.html" 
+     <span class="hl">enctype="multipart/form-data"</span>&gt;
+...
+&lt;/form&gt;
+            
+            </code></pre>
+            </section>
+
+            <section>
+                <p>Esta vez, al hacer clic en el botón <em>Enviar</em> el navegador envía la siguiente petición:</p>
+                <pre><code data-trim data-noescape class="no-highlight">
+POST http://localhost:3000/procesar_formulario.html HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:50.0) 
+...
+
+<div style="background-color:#DDF;padding:10px 5px">Content-Type: <span class="hl" style="background-color:#DFD">multipart/form-data</span>; boundary=------------
+Content-Length: 425
+
+------------
+Content-Disposition: form-data; name="nombre"
+
+<span class="hl" style="background-color:#FFE">Elena</span>
+------------
+Content-Disposition: form-data; name="apellidos"
+
+<span class="hl" style="background-color:#FFE">Paredes Torrado</span>
+------------
+Content-Disposition: form-data; name="fumador"
+
+<span class="hl" style="background-color:#FFE">si</span>
+--------------</div>
+            </code></pre>
+            </section>
+
+            <section>
+                <h3>El middleware <code>multer</code></h3>
+                <p>El middleware <code>body-parser</code> no puede analizar formularios enviados con la codificación <code>multipart/form-data</code>.</p>
+                <p>Existe otro middleware destinado a ello: <code>multer</code></p>
+                <pre><code data-trim class="no-highlight">
+npm install multer --save
+            </code></pre>
+                <p><a href="https://github.com/expressjs/multer">https://github.com/expressjs/multer</a></p>
+            </section>
+
+            <section>
+                <pre><code data-trim class="javascript">
+import multer from "multer";
+            </code></pre>
+                <p>El módulo <code>multer</code> exporta una única función. Esta función devuelve una factoría de middlewares.</p>
+                <pre><code data-trim class="javascript">
+const multerFactory = multer();                
+            </code></pre>
+                <p>Esta factoría contiene métodos que devuelven middlewares:</p>
+                <ul>
+                    <li><code>none()</code>: Procesa formularios que no adjuntan ningún fichero.</li>
+                    <li><code>single()</code>: Procesa formularios que adjuntan un fichero.</li>
+                    <li><code>array()</code>: Procesa formularios que adjuntan varios ficheros.</li>
+                </ul>
+            </section>
+
+            <section>
+                <p>Dado que nuestro formulario aún no tiene ningún campo para subir ficheros, utilizamos <code>none()</code>.</p>
+                <p>El middleware puede añadirse a la cadena global:</p>
+                <pre><code data-trim class="javascript">
+app.use(multerFactory.none());
+            </code></pre>
+                <p>Pero es más frecuente su uso como middleware intermedio exclusivamente en aquellas rutas que hagan uso de este tipo de formularios:</p>
+                <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", 
+     <span class="hl">multerFactory.none()</span>, (request, response) => {   
+     ...
+});
+            </code></pre>
+            </section>
+
+            <section>
+                <p>Al igual que <code>body-parser</code>, el middleware <code>multer</code> analiza el contenido del formulario y añade los atributos correspondientes al objeto <code>request.body</code>.</p>
+                <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", 
+        multerFactory.none(), (request, response) => {
+response.render("datos_formulario", {
+    nombre: <span class="hl">request.body.nombre</span>,
+    apellidos: <span class="hl">request.body.apellidos</span>,
+    fumador:<span class="hl"> request.body.fumador</span> === "si"
+});
+});                
+            </code></pre>
+                <img src="../manu/images/06/FormularioDatos.png" width="30%">
+            </section>
+
+            <section>
+                <h3>Adjuntar ficheros a un formulario</h3>
+                <p>Hemos visto / usados los siguientes tipos de componentes <code>&lt;input&gt;</code></p>
+                <ul>
+                    <li><code>submit</code></li>
+                    <li><code>reset</code></li>
+                    <li><code>text, password, number, range, ...</code></li>
+                    <li><code>radio</code></li>
+                    <li><code>checkbox</code></li>
+                    <li><code>hidden</code></li>
+                </ul>
+                <p class="fragment">Recordemos el tipo: <code>file</code></p>
+            </section>
+
+            <section>
+                <section>
+                    <pre><code data-trim data-noescape class="html">
+&lt;form method=&quot;POST&quot; action=&quot;procesar_formulario.html&quot; 
+         enctype=&quot;multipart/form-data&quot;&gt;
+        ...
+        &lt;input type=&quot;file&quot; name=&quot;foto&quot;&gt;
+        ...
+&lt;/form&gt;                
+                </code></pre>
+                    <img src="../manu/images/06/FormFile.png" width="70%">
+                </section>
+
+                <section>
+                    <p>Al enviar el formulario se genera la siguiente petición:</p>
+                    <pre><code data-trim data-noescape class="no-highlight" style="font-size:80%; line-height:115%">
+POST http://localhost:3000/procesar_formulario.html HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:50.0) 
+...
+
+<div style="background-color:#DDF;padding:10px 5px">Content-Type: <span class="hl" style="background-color:#DFD">multipart/form-data</span>; boundary=------------
+Content-Length: 14411
+
+------------
+Content-Disposition: form-data; name="nombre"
+
+<span class="hl">Elena</span>
+------------
+Content-Disposition: form-data; name="apellidos"
+
+<span class="hl">Paredes Torrado</span>
+------------
+Content-Disposition: form-data; name="fumador"
+
+<span class="hl">si</span>
+------------
+Content-Disposition: form-data; name="foto"; filename="profile-icon-png-917.png"
+Content-Type: image/png
+
+<span class="hl">...datos del fichero PNG....</span>
+--------------</div>
+                </code></pre>
+                </section>
+            </section>
+
+            <section>
+                <p>Pasamos al código Javascript en el servidor.</p>
+                <p>En primer lugar, a la hora de crear la factoría de middlewares, hemos de indicar dónde almacenar los ficheros subidos:</p>
+                <ul style="width:90%">
+                    <li>En memoria:<br>
+                        <pre><code data-trim class="javascript">
+import multer from "multer";
+const multerFactory = multer({ storage: multer.memoryStorage() });
+                    </code></pre>
+                    </li>
+                    <li>En una carpeta determinada en el servidor:
+                        <pre><code data-trim class="javascript">
+import multer from "multer";
+multerFactory = multer({ dest: path.join(__dirname, "uploads") });
+                    </code></pre>
+                    </li>
+                </ul>
+                <p>Utilizaremos esta última opción en nuestro ejemplo.</p>
+            </section>
+
+            <section>
+                <p>Como el formulario incluye un único componente para subir archivos, debemos utilizar el método <code>single()</code> de la factoria de middlewares creada por <code>multer</code>.</p>
+                <p>Este método recibe el nombre del campo del formulario que contiene el fichero adjunto.</p>
+                <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", 
+        <span class="hl">upload.single("foto")</span>, (request, response) => {
+...
+});
+            </code></pre>
+            </section>
+
+            <section>
+                <p>El middleware devuelto por <code>single()</code> añade un nuevo atributo <code>file</code> al objeto <code>request</code>. El atributo <code>file</code> es un objeto con los siguientes atributos:</p>
+                <ul>
+                    <li>
+                        <code>mimetype</code>, <code>size</code><br>Tipo MIME y tamaño del fichero subido.
+                    </li>
+                    <li>
+                        <code>destination</code>, <code>filename</code><br>La carpeta y nombre del fichero donde se ha guardado el fichero subido en el servidor.
+                    </li>
+                    <li>
+                        <code>path</code><br>La ruta completa del fichero subido dentro del servidor.
+                    </li>
+                    <li>
+                        <code>buffer</code><br>Contenido del fichero (solamente disponible si se ha utilizado almacenamiento en memoria).
+                    </li>
+                </ul>
+            </section>
+
+            <section>
+                <p>En nuestro ejemplo:</p>
+                <pre><code data-trim class="javascript">
+app.post("/procesar_formulario.html", 
+        upload.single("foto"), (request, response) => {
+
+if (request.file) { // Si se ha subido un fichero
+   console.log(`Fichero guardado en: ${request.file.path}`);
+   console.log(`Tamaño: ${request.file.size}`);
+   console.log(`Tipo de fichero: ${request.file.mimetype}`);
+}
+
+response.render("datos_formulario", {
+   nombre: request.body.nombre,
+   apellidos: request.body.apellidos,
+   fumador: request.body.fumador === "si"
+});
+});
+            
+            </code></pre>
+                <pre><code data-trim class="no-highlight">
+Fichero guardado en: uploads/85a78144eb402de50883c6be1204b200
+Tamaño: 13819
+Tipo de fichero: image/png                
+            </code></pre>
+            </section>
+
+            <section>
+                <p>
+                    Modificamos la función para que añada el nombre del fichero subido a la carpeta <code>uploads</code> dentro de la vista (en el caso en que se haya subido alguno):
+                    <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", 
+        upload.single("foto"), (request, response) => {
+let nombreFichero = null;
+if (request.file) {
+    nombreFichero = request.file.filename;
+}
+
+response.render("datos_formulario", {
+    nombre: request.body.nombre,
+    apellidos: request.body.apellidos,
+    fumador: request.body.fumador === "si",
+    <span class="hl">imagen: nombreFichero</span>
+});
+});
+                
+                </code></pre>
+            </section>
+
+            <section>
+                <p>Dentro de la vista <code>datos_formulario</code>:</p>
+                <pre><code data-trim data-noescape class="html">
+...                
+<span class="hl">&lt;% if (imagen) { %&gt;</span>
+&lt;tr&gt;
+&lt;td&gt;Foto:&lt;/td&gt;
+&lt;td&gt;&lt;img src=&quot;/imagen/<span class="hl">&lt;%= ficheroImagen %&gt;</span>&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+<span class="hl">&lt;% } %&gt;</span>
+...
+        </code></pre>
+                <p>Para mostrar la imagen, el navegador hará una petición GET a la dirección <code>/imagen/<em>identificador</em></code>, donde el <code><em>identificador</em></code> es el nombre de la imagen dentro de la carpeta <code>uploads</code>.</p>
+            </section>
+
+            <section>
+                <p>Para tratar las URLs de la forma <code>/imagen/<em>identificador</em></code> tenemos que añadir un nuevo manejador de ruta paramétrica a la aplicación:</p>
+                <pre><code data-trim data-noescape class="javascript">
+app.get("/imagen/:id", (request, response) => {
+...
+});
+</code></pre>
+                <div class="fragment">
+                    <p>Este manejador devolverá la imagen correspondiente al servidor:</p>
+                    <pre><code data-trim data-noescape class="javascript">
+import { join } from 'node:path'; 
+let pathImg = join(__dirname, "uploads", request.params.id);
+response.sendFile(pathImg);
+</code></pre>
+                </div>
+            </section>
+
+            <section>
+                <img src="../manu/images/06/FormularioDatosImagen.png" width="50%">
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p7">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p6" class="outline">Subida de ficheros</a></li>
+                    <li><a href="#/p7" class="outline current fragment highlight-orange">Binarios y bases de datos</a></li>
+                    <li><a href="#/p8" class="outline">Validación de formularios</a></li>
+                    <li><a href="#/p1" class="outline">¿Por qué un modelo asíncrono?</a></li>
+                    <li><a href="#/p9" class="outline">Bibliografía</a></li>
+                </ol>
+            </section>
+
+            <section>
+
+                <section>
+                    <h2>Binarios y bases de datos</h2>
+                    <p>Las imágenes pueden ser guardadas en la base de datos como celdas de tipo BLOB.</p>
+                    <p>Supongamos que queremos almacenar los resultados del formulario anterior en una base de datos.</p>
+                    <img src="../manu/images/06/TablaPersonas.png" width="40%" style="border:none; box-shadow:none">
+                </section>
+
+                <section>
+                    <p>El primer paso es configurar <code>multer</code> para que los ficheros adjuntos al formulario se almacenen en memoria:</p>
+                    <pre><code data-trim class="javascript">
+const multer = require("multer");
+...
+const upload = multer({ storage: multer.memoryStorage() });
+                </code></pre>
+                    <p>Al utilizar almacenamiento en memoria, el contenido del fichero está disponible dentro de la propiedad <code>buffer</code> como un objeto de la clase <code>Buffer</code>.</p>
+                </section>
+
+
+                <section>
+                    <p>Actualizamos el controlador de <code>/procesar_formulario.html</code></p>
+                    <pre><code data-trim data-noescape class="javascript">
+app.post("/procesar_formulario.html", upload.single("foto"), 
+                (request, response) => {
+    let usuario = {
+        nombre: request.body.nombre,
+        apellidos: request.body.apellidos,
+        fumador: request.body.fumador === "si",
+        foto: null
+    };
+    
+    if (request.file) {
+        usuario.foto = <span class="hl">request.file.buffer</span>;
+    }
+    
+    insertarUsuario(usuario, (err, newId) => {
+        usuario.id = newId;
+        response.render("datos_formulario_bd", usuario);
+    });
+});                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>La función <code>insertarUsuario</code> utiliza una consulta paramétrica para añadir la correspondiente fila en la BD.</p>
+                    <pre><code data-trim data-noescape class="javascript" style="font-size:80%; line-height:115%">
+let pool = mysql.createPool(...);
+...
+function insertarUsuario(usuario, callback) {
+    pool.getConnection((err, con) => {
+        if (err) {
+            callback(err);
+        } else {
+            let sql = 
+                "INSERT INTO personas(Nombre, Apellidos, Fumador, Foto) " +
+                "VALUES (?, ?, ?, ?)";
+            con.query(sql, [usuario.nombre, usuario.apellidos, 
+                            usuario.fumador, <span class="hl">usuario.foto</span>],  <span class="arrow_box_left caja_codigo">Objeto <span style="font-family:monospace">Buffer</span></span>
+                (err, result) => {
+                    con.release();
+                    if (err) {
+                        callback(err);
+                    } else {
+                        callback(null, result.insertId);
+                    }
+                });
+        }
+    });
+}                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>¿Cómo obtener las imágenes de la BD?</p>
+                    <p>Añadimos una ruta <code>/imagen/<span class="hl">:id</span></code> que devuelve al cliente la foto correspondiente al usuario con el <code>id</code> dado.</p>
+                    <pre><code data-trim data-noescape class="javascript">
+app.get("/imagen/:id", (request, response) => {
+    let n = Number(request.params.id);
+    if (isNaN(n)) {
+        response.status(400);
+        response.end("Petición incorrecta");
+    } else {
+        obtenerImagen(n, (err, imagen) => {
+            if (imagen) {
+                <span class="hl">response.end(imagen);</span>  <span class="arrow_box_left caja_codigo">Devolvemos buffer al cliente</span>
+            } else {
+                response.status(404);
+                response.end("Not found");
+            }
+        });
+    }
+});                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>La función <code>obtenerImagen</code> obtiene la foto de la BD:</p>
+                    <pre><code data-trim class="javascript">
+function obtenerImagen(id, callback) {
+    pool.getConnection((err, con) => {
+        if (err) {
+            callback(err);
+        } else {
+            let sql = "SELECT Foto FROM personas WHERE Id = ?";
+            con.query(sql, [id], (err, result) => {
+                con.release();
+                if (err) {
+                    callback(err);
+                } else {
+                    // Comprobamos si existe una persona
+                    // con el Id dado.
+                    if (result.length === 0) { 
+                        callback(null, undefined);
+                    } else {
+                        callback(null, result[0].Foto);
+                    }
+                }
+            });
+        }
+    });
+}                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Una vez que el usuario ha enviado el formulario, y se ha insertado la información correspondiente en la BD, se visualiza la vista <code>datos_formulario_bd</code>.</p>
+                    <p>Esta vista utiliza una URL de la forma <code>/imagen/:id</code> para mostrar la imagen del usuario:</p>
+                    <pre><code data-trim data-noescape class="html">
+...
+<span class="hl">&lt;% if (foto) { %&gt;</span>
+&lt;tr&gt;
+    &lt;td&gt;Foto:&lt;/td&gt;
+    &lt;td&gt;&lt;img src=&quot;/imagen/<span class="hl">&lt;%= id %&gt;</span>&quot;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+<span class="hl">&lt;% } %&gt;</span>
+...
+                </code></pre>
+                </section>
+
+                <section>
+                    <img src="../manu/images/06/FormularioImagenBD1.png" width="50%"><br>
+                    <img src="../manu/images/06/FormularioDatosImagenBD.png" width="35%">
+                </section>
+
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="zoom" id="p8">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">¿Por qué un modelo asíncrono?</a></li>
+                    <li><a href="#/p2" class="outline">Más sobre módulos</a></li>
+                    <li><a href="#/p3" class="outline">Funciones y paquetes adicionales</a></li>
+                    <li><a href="#/p4" class="outline">Eventos y flujos</a></li>
+                    <li><a href="#/p6" class="outline">Subida de ficheros</a></li>
+                    <li><a href="#/p7" class="outline">Binarios y bases de datos</a></li>
+                    <li><a href="#/p8" class="outline current">Validación de formularios</a></li>
+                    <li><a href="#/p9" class="outline">Bibliografía</a></li>
+                </ol>
+            </section>
+
+
+            <section>
+                <section>
+                    <h2>Validación de formularios</h2>
+                    <p>Un problema recurrente en las aplicaciones web es la comprobación de que los datos introducidos por los usuarios en un formulario son correctos.</p>
+                    <p>El módulo <code>express-validator</code> facilita esta comprobación.</p>
+                    <p><a href="https://github.com/ctavan/express-validator">https://github.com/ctavan/express-validator</a></p>
+                    <p>La comprobación realizada mediante este módulo se realiza en el lado del <strong>servidor</strong>.</p>
+                </section>
+
+                <section>
+                    <h3>El módulo <code>express-validator</code></h3>
+                    <pre><code data-trim class="no-highlight">
+npm install express-validator --save
+                </code></pre>
+                    <p>El módulo exporta una única función que devuelve un middleware:</p>
+                    <pre><code data-trim class="javascript">
+const expressValidator = require("express-validator");
+const app = express();
+...
+app.use(expressValidator());
+...
+                </code></pre>
+                    <p>Este middleware añade métodos extra al objeto <code>request</code>. Estos métodos permiten validar la información de un formulario.</p>
+                </section>
+
+                <section>
+                    <h4>Métodos añadidos al objeto <code>request</code></h4>
+                    <ul>
+                        <li><code>checkQuery()</code><br> Especifica condiciones en los parámetros de la URL (formularios con <code>method="GET"</code>).
+                        </li>
+                        <li><code>checkBody()</code><br> Especifica condiciones en el cuerpo de la petición (formularios con <code>method="POST"</code>).
+                        </li>
+                        <li><code>checkParam()</code><br> Especifica condiciones en las componentes de las URL paramétricas (por ejemplo, <code>/user/<span class="hl">:id</span>/profile</code>).
+                        </li>
+                        <li><code>check()</code><br> Especifica condiciones en cualquiera de las tres anteriores.
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <p>Estos métodos reciben uno o dos parámetros:</p>
+                    <p><code>check(nombreParam[, mensaje])</code></p>
+                    <p>donde <code>nombreParam</code> es el nombre del componente del formulario (o parámetro de la URL) que se quiere analizar, y <code>mensaje</code> es el mensaje de error que se debería mostrar al usuario en el caso en que las condiciones impuestas no se cumplan.</p>
+                    <p>Estos métodos devuelven un objeto cuyos métodos permiten concretar qué condiciones ha de cumplir la información correspondiente.</p>
+                </section>
+
+                <section>
+                    <h4>Ejemplo</h4>
+                    <img src="../manu/images/06/FormularioValidacion.png" width="60%">
+                    <pre><code data-trim class="html">
+&lt;form method=&quot;post&quot; action=&quot;procesar_formulario&quot;&gt;
+    &lt;input type=&quot;text&quot; name=&quot;login&quot;&gt;
+    ...
+    &lt;input type=&quot;password&quot; name=&quot;pass&quot;&gt;
+    ...
+    &lt;input type=&quot;text&quot; name=&quot;email&quot;&gt;
+    ...
+    &lt;input type=&quot;text&quot; name=&quot;fechaNacimiento&quot;&gt;
+&lt;/form&gt;                
+                </code></pre>
+                </section>
+
+                <section>
+                    <pre><code data-trim data-noescape class="javascript" style="font-size:100%">
+app.post("/procesar_formulario", (request, response) => {
+   // El campo login ha de ser no vacío.
+   request.checkBody("login",
+       "Nombre de usuario vacío").notEmpty();
+       
+   // El campo login solo puede contener caracteres alfanuméricos.
+   request.checkBody("login",
+       "Nombre de usuario no válido").matches(/^[A-Z0-9]*$/i);
+       
+   // El campo pass ha de tener entre 6 y 10 caracteres.
+   request.checkBody("pass",
+       "La contraseña no es válida").isLength({ min: 6, max: 10 });
+       
+   // El campo email ha de ser una dirección de correo válida.
+   request.checkBody("email",
+       "Dirección de correo no válida").isEmail();
+       
+   // El campo fechaNacimiento ha de contener una fecha en formato
+   // mm/dd/aaaa anterior a la fecha actual.
+   request.checkBody("fechaNacimiento",
+       "Fecha de nacimiento no válida").isBefore();
+   ...
+}
+                </code></pre>
+                </section>
+
+                <section>
+                    <h4>Métodos de comprobación</h4>
+                    <ul style="float:left;width:40%;font-size:80%">
+                        <li><code>isAlpha(locale)</code></li>
+                        <li><code>isAlphanumeric(locale)</code></li>
+                        <li><code>isAscii(locale)</code></li>
+                        <li><code>isBefore([date])</code></li>
+                        <li><code>contains(str)</code></li>
+                        <li><code>isDate()</code></li>
+                        <li><code>isDecimal()</code></li>
+                        <li><code>isFloat()</code></li>
+                    </ul>
+                    <ul style="float:right;width:50%;font-size:80%">
+                        <li><code>isHexColor()</code></li>
+                        <li><code>isIP()</code></li>
+                        <li><code>isIn([v1, v2, ...])</code></li>
+                        <li><code>isNumeric()</code></li>
+                        <li><code>matches(regexp)</code></li>
+                        <li><code>isURL()</code></li>
+                        <li><code>isLength({min: .., max: ..})</code></li>
+                        <li>etc.</li>
+                    </ul>
+                    <div style="clear:both"></div>
+                    <p>Lista completa: <a href="https://github.com/chriso/validator.js">https://github.com/chriso/validator.js</a></p>
+                </section>
+
+                <section>
+                    <h4>Métodos de comprobación personalizados</h4>
+                    <p>Se pasa un objeto con una propiedad <code>customValidators</code> a la función que crea el middleware.</p>
+                    <pre><code data-trim class="javascript">
+app.use(expressValidator({
+    customValidators: {
+        // El siguiente validador determina si un campo comienza
+        // por la letra 'a'
+        empiezaPorA: param => {
+            return param.startsWith("a");
+        }
+    }
+}));                
+                </code></pre>
+
+                    <pre><code data-trim class="javascript">
+...
+request.checkBody("login",
+    "Nombre de usuario no empieza por a").empiezaPorA();
+...    
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Una vez ejecutados los métodos <code>check()</code>, puede comprobarse la existencia de fallos mediante:</p>
+                    <p><code>request.getValidationResult().then(callback);</code></p>
+                    <p>donde la función <code>callback</code> recibe un objeto que permite obtener los errores de validación detectados.</p>
+                    <pre><code data-trim class="javascript">
+request.getValidationResult().then(result => {
+    // El método isEmpty() devuelve true si las comprobaciones
+    // no han detectado ningún error
+    if (result.isEmpty()) {
+        response.redirect("/correcto.html");
+    } else {
+        // manejar caso de error
+    }
+});
+
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>En caso de que el método <code>isEmpty()</code> devuelva <code>false</code>, existen dos métodos para obtener los errores producidos:</p>
+                    <ul>
+                        <li><code>result.array()</code></li>
+                        <li><code>result.mapped()</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4>El método <code>result.array()</code></h4>
+                    <p>Devuelve un array con tantos objetos como errores producidos. Cada objeto contiene el nombre del elemento del formulario (<code>name</code>), el mensaje de error (<code>msg</code>) y el valor introducido por el usuario (<code>value</code>):
+                        <p>
+                            <pre><code data-trim class="javascript">
+[ 
+  { param: 'email',
+    msg: 'Dirección de correo no válida',
+    value: 'correo' },
+  { param: 'fechaNacimiento',
+    msg: 'Fecha de nacimiento no válida',
+    value: '40/23/2004' }
+]
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Este método resulta útil para mostrar al usuario todos los errores juntos en una misma zona de la web:</p>
+                    <img src="../manu/images/06/FormularioErrores1.png" width="70%">
+                </section>
+
+                <section>
+                    <pre><code data-trim class="javascript">
+request.getValidationResult().then(result => {
+    // El método isEmpty() devuelve true si las comprobaciones
+    // no han detectado ningún error
+    if (result.isEmpty()) {
+        response.redirect("/correcto.html");
+    } else {
+        response.render("index", {errores: result.array() });
+    }
+});
+                </code></pre>
+                    <p><code>views/index.ejs</code></p>
+                    <pre><code data-trim data-noescape class="html">
+&lt;h1&gt;Formulario de registro&lt;/h1&gt;
+&lt;div class=&quot;caja_errores&quot;&gt;
+    La informaci&oacute;n introducida en el formulario es incorrecta:
+    &lt;ul&gt;
+        <span class="hl">&lt;% errores.forEach(error => { %&gt;</span>
+        &lt;li&gt;<span class="hl">&lt;%= error.msg %&gt;</span>&lt;/li&gt;
+        <span class="hl">&lt;% }); %&gt;</span>
+    &lt;/ul&gt;
+&lt;/div&gt;
+&lt;form method=&quot;post&quot; action=&quot;procesar_formulario&quot;&gt;   
+...
+                </code></pre>
+                </section>
+
+                <section>
+                    <h4>El método <code>result.mapped()</code></h4>
+                    <p>Devuelve un objeto cuyas claves son los nombres de campos del formulario en los que se ha producido error:
+                        <p>
+                            <pre><code data-trim class="javascript">
+{ 
+  email: { 
+            param: 'email',
+            msg: 'Dirección de correo no válida',
+            value: 'correo'
+  },
+  fechaNacimiento: { 
+            param: 'fechaNacimiento',
+            msg: 'Fecha de nacimiento no válida',
+            value: '40/23/2004' 
+  }
+}                </code></pre>
+                </section>
+
+                <section>
+                    <p>Sirve para separar los mensajes de error en distintas zonas de la página web:</p>
+                    <img src="../manu/images/06/FormularioErrores2.png" width="90%">
+                </section>
+
+                <section>
+                    <pre><code data-trim class="javascript">
+request.getValidationResult().then(result =>  {
+    // El método isEmpty() devuelve true si las comprobaciones
+    // no han detectado ningún error
+    if (result.isEmpty()) {
+        response.redirect("/correcto.html");
+    } else {
+        response.render("index", {errores: result.mapped() });
+    }
+});
+                </code></pre>
+                    <p><code>views/index.ejs</code></p>
+                    <pre><code data-trim data-noescape class="html">
+&lt;input type=&quot;text&quot; name=&quot;email&quot;&gt;
+<span class="hl">&lt;% if (errores.email) { %&gt;</span>
+    &lt;span class="rojo"&gt;<span class="hl">&lt;%= errores.email.msg %&gt;</span>&lt;/span&gt;
+<span class="hl">&lt;% } %&gt;</span>
+...
+&lt;input type=&quot;text&quot; name=&quot;fechaNacimiento&quot;&gt;
+<span class="hl">&lt;% if (errores.fechaNacimiento) { %&gt;</span>
+    &lt;span class="rojo"&gt;<span class="hl">&lt;%= errores.fechaNacimiento.msg %&gt;</span>&lt;/span&gt;
+<span class="hl">&lt;% } %&gt;</span>
+                </code></pre>
+                </section>
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="fade" id="p1">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p6" class="outline">Subida de ficheros</a></li>
+                    <li><a href="#/p7" class="outline">Binarios y bases de datos</a></li>
+                    <li><a href="#/p8" class="outline">Validación de formularios</a></li>
+                    <li><a href="#/p1" class="outline current fragment highlight-orange">¿Por qué un modelo asíncrono?</a></li>
+                    <li><a href="#/p9" class="outline">Bibliografía</a></li>
+                </ol>
+            </section>
+
+
+            <section>
+                <h2>¿Por qué un modelo asíncrono?</h2>
+                <p>Node está pensado para desarrollar aplicaciones con alta capacidad de respuesta como, por ejemplo, servidores web.</p>
+                <p>La funcionalidad de la mayoría de aplicaciones web está basada en accesos a disco u otra fuente de datos (p.ej. bases de datos), que son operaciones <strong>relativamente lentas</strong>.</p>
+                <p>Para que un servidor web pueda atender a varios clientes, ha de gestionar adecuadamente estas operaciones de entrada y salida.</p>
+            </section>
+
+            <section>
+                <h3>Modelos de servidores web</h3>
+                <ol>
+                    <li>Modelo tradicional: un proceso por petición.</li>
+                    <li>Modelo tradicional: <em>pool</em> de hebras de ejecución.</li>
+                    <li>NGINX Process Model (Node).</li>
+                </ol>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Un proceso por petición</h3>
+                    <img src="../manu/images/04/ServidorProcesos.svg" width="80%" style="border:none;box-shadow:none">
+                </section>
+
+                <section>
+                    <p>Se crea un proceso del sistema operativo por cada petición que se realice.</p>
+                    <p><strong>Inconveniente:</strong> coste de la creación de procesos.</p>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Pool de hebras de ejecución</h3>
+                    <img src="../manu/images/04/ServidorHilos.svg" width="80%" style="border:none;box-shadow:none">
+                </section>
+
+                <section>
+                    <p>Al arrancar el servidor se crea un conjunto de hebras, inicialmente sin tarea asignada.</p>
+                    <p>Cuando llega una petición al servidor, una de las hebras se encarga de atenderla.</p>
+                    <p>Con esto nos ahorramos el coste de creación y liberación de hebras a medida que van llegando peticiones.</p>
+                    <p><strong>Inconveniente:</strong> el cambio del contexto de ejecución entre hebras conlleva un coste.</p>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Modelo NGINX / Node</h3>
+                    <img src="../manu/images/04/ServidorNGINX.svg" width="90%" style="border:none;box-shadow:none">
+                </section>
+
+                <section>
+                    <p>Existe <strong>un único hilo</strong> en ejecución</p>
+                    <p>Este hilo se encarga de atender a todas las peticiones.</p>
+
+                    <p>Cuando se requiere realizar una operación con coste elevado en tiempo (acceso a disco, BD, red, etc.), se realiza de manera asíncrona. La función <em>callback</em> se guarda en una cola de funciones que se ejecutarán cuando finalice el código que se está ejecutando actualmente.</p>
+                    <div class="fragment">
+                        <p><strong>Esta cola es gestionada por Node</strong>, no por el SO.</p>
+
+                        <p>&rArr; El cambio de contexto es menos costoso.</p>
+                    </div>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Bucle principal de un servidor Node</h3>
+                    <pre><code data-trim class="javascript">
+while (!terminado) {
+    1. Esperar petición de un cliente.
+    2. Procesar petición.
+}                
+                </code></pre>
+                    <p>¿Cómo se procesa la petición?</p>
+                </section>
+
+                <section>
+                    <p>Si sólo se utilizan operaciones síncronas, el servidor no acepta otra petición hasta que la hayan terminado dichas operaciones:</p>
+                    <pre><code data-trim class="javascript">
+while (!terminado) {
+    1. Esperar petición de un cliente.
+    2. Procesar petición:
+        2.1 let resultado = consultarBDSync(...);
+        2.2 Procesar resultado
+        2.3 Devolver resultado al cliente.
+}                
+                </code></pre>
+                </section>
+
+                <section>
+                    <p>Por el contrario, si se realizan operaciones asíncronas, será la función callback la que procese y devuelva el resultado de la operación. Antes de ejecutar la función callback, la iteración actual del bucle continúa su ejecución.</p>
+                    <pre><code data-trim class="javascript">
+while (!terminado) {
+    1. Esperar petición de un cliente.
+    2. Procesar petición:
+        2.1 let resultado = consultarBDASync(..., callback);
+}                
+
+function callback(resultado) {
+    1. Procesar resultado
+    2. Devolver resultado al servidor
+}
+                </code></pre>
+                    <p>Nada más lanzar la operación <code>consultarDBAsync</code>, el servidor está listo para atender otra petición.</p>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Consecuencias de este modelo</h3>
+                    <p>En el contexto de un servidor web con Node, todas las operaciones de E/S deben ser <strong>asíncronas</strong>, para evitar cuellos de botella en el procesamiento de las peticiones.</p>
+
+                    <p>Esto es especialmente relevante cuando se quiere realizar operaciones costosas en términos de tiempo de CPU.</p>
+                    <pre><code data-trim data-noescape class="javascript">
+while (!terminado) {
+    1. Esperar petición de un cliente.
+    2. Procesar petición (alto coste CPU). <span class="arrow_box_left caja_codigo fragment">Cuello de botella</span>
+    3. Devolver respuesta.
+}                         
+                </code></pre>
+                </section>
+
+                <section>
+                    <div style="background-color:#ffdddd;padding:10px;">
+                        La eficiencia de un servidor implementado en Node &laquo;flojea&raquo; cuando éste tiene que realizar operaciones que requieren <strong>un uso intenso de la CPU</strong>.
+                    </div>
+
+                    <p>
+                        Si se desea realizar una operación de este tipo, el cómputo complejo deberá dividirse en cómputos más sencillos, y ejecutar cada uno de ellos en una iteración del bucle de node, de manera que se intercalen con el procesamiento de las demás peticiones al servidor.
+                    </p>
+                    <p>
+                        Esto se puede realizar con la función <code>process.nextTick()</code><br>
+                        <a href="https://howtonode.org/understanding-process-next-tick">Más información</a>
+                    </p>
+                </section>
+
+            </section>
+
+            <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="zoom" id="p9">
+                <ol class="contenidos" style="width:17em">
+                    <li><a href="#/p1" class="outline">¿Por qué un modelo asíncrono?</a></li>
+                    <li><a href="#/p2" class="outline">Más sobre módulos</a></li>
+                    <li><a href="#/p3" class="outline">Funciones y paquetes adicionales</a></li>
+                    <li><a href="#/p4" class="outline">Eventos y flujos</a></li>
+                    <li><a href="#/p6" class="outline">Subida de ficheros</a></li>
+                    <li><a href="#/p7" class="outline">Binarios y bases de datos</a></li>
+                    <li><a href="#/p8" class="outline">Validación de formularios</a></li>
+                    <li><a href="#/p9" class="outline current">Bibliografía</a></li>
+                </ol>
+            </section>
+
+            <section>
+                <h2>Bibliografía</h2>
+                <div style="float:left; width:70%">
+                    <ul>
+                        <li>B.A. Syed
+                            <br>
+                            <a href="http://cisne.sim.ucm.es/record=b3413478~S6*spi">Beginning Node.js</a>
+                            <br> Apress, 2014
+                        </li>
+                        <li>
+                            <a href="https://nodejs.org/docs/v4.6.1/api/">Documentación de las librerías de Node</a>
+                            <span style="font-size:70%">https://nodejs.org/docs/v4.6.1/api/</span>
+                        </li>
+                    </ul>
+                </div>
+                <div style="float:right; width: 30%">
+                    <img src="https://images.springer.com/sgw/books/medium/9781484201886.jpg" style="width:50%; border:none">
+                </div>
+                <div style="clear:both"></div>
+
+            </section>
+
+            <section>
+                <h3>Documentación librerías externas</h3>
+                <ul>
+                    <li>Multer:<br><a href="https://github.com/expressjs/multer">https://github.com/expressjs/multer</a> </li>
+                    <li>Express validator:<br><a href="https://github.com/ctavan/express-validator">https://github.com/ctavan/express-validator</a> </li>
+                    <li>Underscore.js:<br><a href="http://underscorejs.org/">http://underscorejs.org/</a></li>
+                    <li>Moment.js:<br><a href="http://momentjs.com/">http://momentjs.com/</a></li>
+                </ul>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+
+    <script src="../js/reveal.js"></script>
+    <script src="../js/notes.js"></script>
+    <script src="../js/zoom.js"></script>
+    <script src="../js/highlight.js"></script>
+    <script src="../js/math.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/slides.js"></script>
+</body>
+
+</html>
