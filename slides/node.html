@@ -71,12 +71,12 @@
                 <section>
                     <h3>Versiones</h3>
                     <ul>
-                        <li><strong>v22.4.1 LTS</strong>, que utilizaremos en este curso.</li>
-                        <li><strong>v23.7.0</strong>, que es la versión más reciente.</li>
+                        <li><strong>v24.0.1 LTS</strong>, que utilizaremos en este curso.</li>
+                        <li><strong>v25.6.1</strong>, que es la versión más reciente.</li>
                     </ul>
                     <p>LTS = <em>Long Term Support</em></p>
                     <p>Las versiones LTS tienen suporte garantizado durante 18 meses a partir del momento en el que se convierten en LTS.</p>
-                    <p>Las versiones 23.X.X rompen la compatibilidad con las 22.X.X. Algunos programas escritos para Node 23 pueden requerir modificaciones para ejecutarse bajo Node 22.</p>
+                    <p>Las versiones 25.X.X rompen la compatibilidad con las 24.X.X. Algunos programas escritos para Node 23 pueden requerir modificaciones para ejecutarse bajo Node 24.</p>
                 </section>
                 <section>
                     <h3>Instalación</h3>
@@ -1111,6 +1111,202 @@ fs.readFile("fich.txt", (err, contenido) => {
                 </code></pre>
                     </div>
                 </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Problemas con las funciones callback</h3>
+                    <p>Las funciones callback funcionan bien para los casos sencillos.</p>
+                    <p>Normalmente las tareas requieren encadenar accciones <span class="fragment"> &rarr; Hay que anidar las funciones callback</span></p>
+                </section>
+                <section>
+                    <h3>Callback hell</h3>
+                    <pre><code data-trim data-noescape class="javascript">
+                        async1(function (input, result1) {
+                            async2(function (result2) {
+                                async3(function (result3) {
+                                    async4(function (result4) {
+                                        async5(function (resultado) {
+                                            // Hacer algo con resultado
+                                        });
+                                    });
+                                });
+                            });
+                        });                        
+                    </code></pre>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Promesas</h3>
+                    <p>Una <code>Promise</code> es un objeto especial en JS que representa la <strong>futura</strong> finalización exitosa (o fallo) de una operación.</p>
+                </section>
+                <section>
+                    <h3>Estados de una promesa</h3>
+                    <ul>
+                        <li><em>Pending</em>: Estado inicial y mientras se ejecuta la opereracioń</li>
+                        <li><em>Fullfiled</em>: La operación se ha completado exitosamente</li>
+                        <li><em>Rejected</em>: La operación ha completado con problemas (normalmente un error)</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Estados de una promesa</h3>
+                    <img src="../images/manu/04/estadosPromesas.png">
+                </section>
+                <section>
+                    <h3>Ejemplo de promesa</h3>
+                    <pre><code data-trim data-noescape class="javascript">
+                        const myPromise = new Promise((resolve, reject) => {
+                          const success = true;
+                            if (success) {
+                              resolve('OK !');
+                            } else {
+                              reject('KO :(');
+                            }
+                         });
+                    </code></pre>
+                    <p class="fragment">Los módulos core de node y otros módulos ya ofrecen una API que devuelven objetos <code>Promise</code></p>
+                </section>
+                <section>
+                    <h3>Podemos convertir una API callback a <code>Promise</code></h3>
+                    <pre><code data-trim data-noescape class="javascript">
+                      import { readFile } from "node:fs";
+
+                      const readFilePromise = new Promise((resolve, reject) => {
+                        readFile("fich.txt", (err, contenido) => {
+                            if (!err) {
+                                resolve(contenido);
+                            } else {
+                                reject(err);
+                            }
+                        });
+                      });
+                    </code></pre>
+                    <p class="fragment"><code>node:util</code> proporciona la funcion <code>promisify</code> para facilitar esta conversión</p>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Gestionando promesas</h3>
+                    <p>Podemos gestionar el resultado de la <code>Promesa</code> a través de sus métodos</p>
+                    <ul>
+                        <li><code>.then(callback)</code>: Usada para gestionar el caso de operación exitosa</li>
+                        <li><code>.catch(callback)</code>: Usada para gestionar errores</li>
+                        <li><code>.finally(callback)</code>: Utilizada para gestionar que la operación ha finalizado (para hacer limpieza)</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3>Gestionando promesas</h3>
+                    <pre><code data-trim data-noescape class="javascript">
+                      readFilePromise
+                      .then((contenido) => {
+                        console.log(contenido);
+                      })
+                      .catch(err) => {
+                        console.log("Oops", err);
+                      });
+                    </code></pre>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Encadenando promesas</h3>
+                    <p><code>.then()</code> y <code>.catch()</code> devuelven objetos <code>Promise</code></p>
+                    <p class="fragment">Dentro de estas funciones podemos devolver valores que son convertidos en <code>Promise</code> resueltas o bien otras promesas</p>
+                </section>
+                <section>
+                    <h3>Callbacks vs Promises</h3>
+                    <div style="display: flex; gap: 20px">
+<pre><code data-trim data-noescape class="javascript">
+                        async1((input, result1) => {
+                            async2((result2) => {
+                                async3((result3) => {
+                                    async4((resultado) => {
+                                      // Hacer algo con resultado
+                                    });
+                                });
+                            });
+                        });                        
+                    </code></pre>
+                    <pre><code data-trim data-noescape class="javascript">
+                            async1Prom
+                            .then((result1) => {
+                                // Hacemos algo con result1
+                                return async2Prom;
+                            })
+                            .then((result2) => {
+                                // Hacemos algo con result2
+                                return async3Prom;
+                            })
+                            .then((result3) => {
+                                // Hacemos algo con result3
+                                return async4Prom;
+                            })
+                            .then((resultado) => {
+                                // Hacemos algo con resultado
+                            })
+                            .catch((err) => {
+                                // Captura el error 
+                            })
+                        </code></pre>
+                    </div>
+                </section>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Facilitando el uso de promesas </h3>
+                    <p>Para hacer menos engorroso el uso de promesas se han introducido <code>async</code> / <code>await</code>.</p>
+                    <p class="fragment"><code>async</code> se usa para declarar una función que devuelva una promesa.</p>
+                    <p class="fragment"><code>await</code> se usa <strong>dentro de una función async</strong> para esparar a que la promesa termine su ejecución.</p>
+                </section>
+
+                <section>
+                    <h3><code>async</code> / <code>await</code></h3>
+                    <div style="display: flex; gap: 20px">
+<pre><code data-trim data-noescape class="javascript">
+                            async1Prom
+                            .then((result1) => {
+                                // Hacemos algo con result1
+                                return async2Prom;
+                            })
+                            .then((result2) => {
+                                // Hacemos algo con result2
+                                return async3Prom;
+                            })
+                            .then((result3) => {
+                                // Hacemos algo con result3
+                                return async4Prom;
+                            })
+                            .then((resultado) => {
+                                // Hacemos algo con resultado
+                            })
+                            .catch((err) => {
+                                // Captura el error 
+                            })                    
+                    </code></pre>
+                    <pre><code data-trim data-noescape class="javascript">
+                        const tareas = async () => {
+                            try {
+                                const result1 = await async1Prom;
+                                // Hacemos algo con result1
+                                const result2 = await async2Prom;
+                                // Hacemos algo con result2
+                                const result3 = await async3Prom;
+                                // Hacemos algo con result3
+                                const resultado = await async4Prom;
+                                // Hacemos algo con resultado
+                            } catch (err) {
+                                // Captura el error 
+                            }
+                        })
+                        </code></pre>
+                    </div>
+                </section>
+
             </section>
 
             <section data-background-image="../manu/images/RedBackground.jpg" data-background-transition="zoom" id="p6">
